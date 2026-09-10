@@ -36,6 +36,7 @@ from triagebench.evaluation.long_tail_policy import (  # noqa: E402
 )
 from triagebench.evaluation.metrics import bootstrap_ci, micro_f1_metric  # noqa: E402
 from triagebench.models.baseline import BaselineConfig, build_pipeline, combine_text  # noqa: E402
+from triagebench.utils.reproducibility import get_git_commit, get_split_metadata  # noqa: E402
 
 ARM_SEED = 0  # fixed; see module docstring for why Arm 0 doesn't use 3 seeds
 CANDIDATE_C = [0.1, 1.0, 10.0]  # small, cheap pilot grid -- decided before any run
@@ -239,6 +240,8 @@ def main() -> None:
             "latency": latency,
             "hardware": platform.platform(),
             "bootstrap_resamples": bootstrap_resamples,
+            "git_commit": get_git_commit(),
+            "split": get_split_metadata(args.splits),
         }
 
         out_path = args.output_dir / f"regime_{regime_label}.json"

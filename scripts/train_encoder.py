@@ -52,6 +52,7 @@ from triagebench.evaluation.long_tail_policy import (  # noqa: E402
 )
 from triagebench.evaluation.metrics import bootstrap_ci, micro_f1_metric  # noqa: E402
 from triagebench.models.baseline import combine_text  # noqa: E402
+from triagebench.utils.reproducibility import get_git_commit, get_split_metadata  # noqa: E402
 
 MODEL_NAME = "distilbert-base-uncased"
 MAX_LENGTH = 256  # covers median (~500 combined chars ~ 100-150 tokens) and most of the p75; documented truncation
@@ -308,6 +309,8 @@ def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, s
         "latency": latency,
         "hardware": describe_hardware(device),
         "bootstrap_resamples": args.bootstrap_resamples,
+        "git_commit": get_git_commit(),
+        "split": get_split_metadata(args.splits),
     }
 
 
