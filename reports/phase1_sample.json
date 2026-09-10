@@ -1,0 +1,182 @@
+{
+  "input_file": "data/raw/sample_data.csv",
+  "input_size_bytes": 2879417,
+  "product_filter_applied": null,
+  "schema": {
+    "expected_columns": [
+      "Issue URL",
+      "ID",
+      "Alias",
+      "Classification",
+      "Component",
+      "Product",
+      "Version",
+      "Platform",
+      "Op sys",
+      "Status",
+      "Resolution",
+      "Depends on",
+      "Dupe of",
+      "Blocks",
+      "Groups",
+      "Flags",
+      "Severity",
+      "Priority",
+      "Deadline",
+      "Target Milestone",
+      "Creator",
+      "Creator Detail",
+      "Creation time",
+      "Assigned to",
+      "Assigned to detail",
+      "CC",
+      "CC detail",
+      "Is CC accessible",
+      "Is confirmed",
+      "Is open",
+      "Is creator accessible",
+      "Summary",
+      "Description",
+      "URL",
+      "Whiteboard",
+      "Keywords",
+      "See also",
+      "Last change time",
+      "QA contact",
+      "History/Activity Log",
+      "Comments",
+      "Attachments"
+    ],
+    "header_matched": true
+  },
+  "rows": {
+    "total_rows_in_file": 100,
+    "malformed_rows": 0,
+    "malformed_row_examples": [],
+    "scoped_rows_after_product_filter": null
+  },
+  "products": {
+    "counts": {
+      "CDT": 100
+    },
+    "distinct_products": 1
+  },
+  "component_taxonomy": {
+    "distinct_components": 8,
+    "counts": {
+      "cdt-build": 80,
+      "cdt-core": 10,
+      "cdt-other": 3,
+      "terminal": 3,
+      "cdt-refactoring": 1,
+      "cdt-lsp": 1,
+      "cdt-parser": 1,
+      "cdt-releng": 1
+    },
+    "head_10_share_pct": "NOT MEASURED (no product filter)",
+    "classes_below_50_support": [
+      "cdt-other",
+      "cdt-core",
+      "terminal",
+      "cdt-refactoring",
+      "cdt-lsp",
+      "cdt-parser",
+      "cdt-releng"
+    ],
+    "classes_below_10_support": [
+      "cdt-other",
+      "terminal",
+      "cdt-refactoring",
+      "cdt-lsp",
+      "cdt-parser",
+      "cdt-releng"
+    ]
+  },
+  "status_distribution": {
+    "scoped": "NOT MEASURED (no product filter)",
+    "all_products": {
+      "NEW": 100
+    }
+  },
+  "resolution_distribution": {
+    "scoped": "NOT MEASURED (no product filter)",
+    "all_products": {
+      "": 100
+    }
+  },
+  "creation_year_distribution": {
+    "2003": 3,
+    "2004": 6,
+    "2005": 8,
+    "2006": 23,
+    "2007": 52,
+    "2011": 2,
+    "2015": 1,
+    "2016": 1,
+    "2017": 1,
+    "2018": 1,
+    "2019": 1,
+    "2020": 1
+  },
+  "text_length": {
+    "summary_chars": {
+      "count": 100,
+      "min": 11,
+      "max": 155,
+      "mean": 62.11,
+      "median": 59.0,
+      "stdev": 23.9,
+      "p10": 35,
+      "p90": 87,
+      "p99": 118
+    },
+    "description_chars": {
+      "count": 100,
+      "min": 75,
+      "max": 5004,
+      "mean": 840.26,
+      "median": 509.0,
+      "stdev": 1024.45,
+      "p10": 203,
+      "p90": 1331,
+      "p99": 4731
+    }
+  },
+  "missing_fields": {
+    "missing_summary": 0,
+    "missing_summary_pct": null,
+    "missing_description": 0,
+    "missing_description_pct": null,
+    "missing_component": 0,
+    "missing_creation_time": 0,
+    "id_parse_failures": 0
+  },
+  "duplicates": {
+    "duplicate_ids": 0,
+    "exact_duplicate_text_groups": 0,
+    "exact_duplicate_extra_rows": 0,
+    "id_range": {
+      "min": 32029,
+      "max": 561678
+    }
+  },
+  "history": {
+    "history_present": 100,
+    "history_empty": 0,
+    "history_parse_failures": 0,
+    "issues_with_component_change": 29,
+    "post_filing_routing_label_instability_rate_pct": "NOT MEASURED (no product filter)",
+    "component_change_count_distribution": {
+      "0": 71,
+      "1": 23,
+      "2": 4,
+      "3": 2
+    },
+    "filing_time_component_reconstructed": 100,
+    "filing_time_component_reconstruction_rate_pct": "NOT MEASURED (no product filter)",
+    "filing_time_vs_current_component_matches": 71,
+    "filing_time_vs_current_component_mismatches": 29,
+    "note": "post_filing_routing_label_instability_rate is the fraction of issues with at least one Component change event in the history log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md."
+  },
+  "completeness": {}
+}
