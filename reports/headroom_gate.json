@@ -1,0 +1,19 @@
+{
+  "status": "MEASURED",
+  "purpose": "Headroom gate: verify the raw dataset and model-ready extraction can be handled safely on available hardware (no unbounded in-memory load).",
+  "input_file": "data/raw/platform_full.csv",
+  "input_size_bytes": 15340818646,
+  "output_file": "data/processed/platform_model_ready.jsonl",
+  "output_size_bytes": 166143971,
+  "rows_scanned": 122496,
+  "rows_written": 122496,
+  "rows_dropped_missing_text": 0,
+  "rows_dropped_missing_component": 0,
+  "rows_label_stable": 100681,
+  "rows_label_unstable": 21815,
+  "elapsed_seconds": 56.1,
+  "peak_rss_mb": 3095.1,
+  "processing_strategy": "streaming row-by-row via csv.reader (triagebench.data.csv_parser.iter_rows); the 15.34GB raw file is never loaded into memory at once.",
+  "hardware": "Apple M5 MacBook Pro, 16GB unified memory",
+  "verdict": "PASS"
+}
