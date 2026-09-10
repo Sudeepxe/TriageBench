@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 
 from triagebench.data.csv_parser import (
+    _MEASURED_MAX_FIELD_BYTES,
+    DEFAULT_CSV_FIELD_SIZE_LIMIT,
     EXPECTED_COLUMNS,
     PRIMARY_PRODUCT,
     component_change_events,
@@ -117,6 +119,14 @@ def test_component_change_events_extracted():
     row1 = next(r for r in rows if r["ID"] == "1")
     history1 = parse_history(row1["History/Activity Log"])
     assert component_change_events(history1) == []
+
+
+def test_field_size_limit_has_real_headroom_above_measured_maximum():
+    # Regression test for a real crash: the original default (50MB) was
+    # exceeded by a real Attachments field (406MB, Platform row 101931)
+    # found when first running the full Platform inspection. The default
+    # must stay comfortably above the measured max, not just above it.
+    assert DEFAULT_CSV_FIELD_SIZE_LIMIT > _MEASURED_MAX_FIELD_BYTES * 2
 
 
 def test_malformed_header_raises(tmp_path):

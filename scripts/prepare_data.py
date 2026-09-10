@@ -54,74 +54,135 @@ def _save_progress(dest: Path, state: dict) -> None:
     _progress_path(dest).write_text(json.dumps(state))
 
 
-def build_sparse_single_member_zip(rf: HTTPRangeFile, zf: zipfile.ZipFile, member: str, dest: Path) -> tuple[int, int]:
-    """Reconstruct a sparse local .zip file that is byte-identical to the
-    remote archive in the two regions that matter (this member's local
-    header + compressed data, and the full central directory + EOCD), with
-    everything else left as an unwritten (sparse) hole.
+def build_cd_record(info: zipfile.ZipInfo, new_local_header_offset: int) -> bytes:
+    """Serialize a single ZIP central-directory file header for `info`,
+    pointing at `new_local_header_offset` instead of its original
+    position. Sizes exceeding 4GB go in a ZIP64 extra field (with the
+    classic 4-byte fields set to the 0xFFFFFFFF sentinel); the new offset
+    is written directly in the classic 4-byte field since placing the
+    entry at/near the start of a compact container keeps it small.
+    """
+    filename = info.filename.encode("utf-8")
+    needs_zip64_sizes = info.compress_size > 0xFFFFFFFF or info.file_size > 0xFFFFFFFF
+    csize_field, usize_field = info.compress_size, info.file_size
+    extra = b""
+    if needs_zip64_sizes:
+        zip64_extra = struct.pack("<QQ", info.file_size, info.compress_size)
+        extra = struct.pack("<HH", 1, len(zip64_extra)) + zip64_extra
+        csize_field = usize_field = 0xFFFFFFFF
 
-    This lets standard ZIP tools (which need random access to the central
-    directory + this member's data) work against a local file while only
-    ~compress_size bytes are actually transferred and written to disk, not
-    the full archive. Deflate64 (compression method 9) isn't decodable by
-    Python's zipfile, so the actual decompression is done by an external
-    tool (7z) against this reconstructed file.
+    dt = info.date_time
+    dosdate = ((dt[0] - 1980) << 9) | (dt[1] << 5) | dt[2]
+    dostime = (dt[3] << 11) | (dt[4] << 5) | (dt[5] // 2)
+    version_needed = 45 if needs_zip64_sizes else 20
 
-    Idempotent/resume-safe: if a progress sidecar from a prior run exists
-    and its recorded offsets match what the remote archive reports *right
-    now*, the container (and any compressed data already downloaded into
-    it) is left untouched -- this function used to unconditionally open
-    the container with mode "wb", which truncates to zero on open and
-    would silently destroy a partially-downloaded container on any retry.
-    Any mismatch (or no prior progress) starts completely fresh.
+    header = struct.pack(
+        "<IHHHHHHIIIHHHHHII",
+        0x02014B50, 45, version_needed, info.flag_bits, info.compress_type,
+        dostime, dosdate, info.CRC, csize_field, usize_field,
+        len(filename), len(extra), 0, 0, 0, info.external_attr, new_local_header_offset,
+    )
+    return header + filename + extra
+
+
+def build_zip64_eocd_tail(entry_count: int, cd_size: int, cd_offset: int) -> bytes:
+    """ZIP64 end-of-central-directory record + locator + classic EOCD,
+    describing a central directory of `entry_count` entries at `cd_offset`.
+    """
+    record = struct.pack(
+        "<IQHHIIQQQQ",
+        0x06064B50, 44, 45, 45, 0, 0, entry_count, entry_count, cd_size, cd_offset,
+    )
+    locator = struct.pack("<IIQI", 0x07064B50, 0, cd_offset + cd_size, 1)
+    classic = struct.pack("<IHHHHIIH", 0x06054B50, 0, 0, entry_count, entry_count, 0xFFFFFFFF, 0xFFFFFFFF, 0)
+    return record + locator + classic
+
+
+def start_minimal_container(rf: HTTPRangeFile, zf: zipfile.ZipFile, member: str, dest: Path) -> tuple[int, int, int]:
+    """Start (or resume) building a *minimal*, single-entry local ZIP
+    container: this member's local header at local offset 0, followed by
+    its compressed data, followed (once complete) by a freshly-built
+    central directory + EOCD referencing local offset 0 -- never the
+    member's original (multi-GB, for Platform) absolute offset.
+
+    This deliberately does NOT preserve the remote archive's original
+    layout via a sparse file (an earlier version of this function did).
+    That approach was found to make p7zip 17.05 fail outright
+    ("Can't open as archive") whenever the real entry sits behind a
+    multi-GB leading gap of unwritten bytes -- reproduced independently
+    with a synthetic sparse file, isolated from compression method,
+    ZIP64 usage, or trailing gaps (all of which 7z handles fine). See
+    docs/EXPERIMENT_LOG.md. Placing the entry at offset 0 sidesteps the
+    bug entirely: there is no leading gap for 7z's offset-correction
+    logic to (mis)compute.
+
+    Returns (remote_data_start, local_data_start, already_written).
     """
     info = zf.getinfo(member)
-
     header_probe = rf_read_at(rf, info.header_offset, 4096)
     if header_probe[:4] != b"PK\x03\x04":
         raise ValueError(f"unexpected local header signature at offset {info.header_offset}")
     fname_len, extra_len = struct.unpack("<HH", header_probe[26:30])
-    data_start = info.header_offset + LOCAL_HEADER_FIXED_SIZE + fname_len + extra_len
+    remote_data_start = info.header_offset + LOCAL_HEADER_FIXED_SIZE + fname_len + extra_len
+    local_header_bytes = header_probe[: LOCAL_HEADER_FIXED_SIZE + fname_len + extra_len]
+    local_data_start = len(local_header_bytes)
 
     existing = _load_progress(dest)
     fresh_state = {
         "member": member,
-        "header_offset": info.header_offset,
-        "data_start": data_start,
+        "remote_data_start": remote_data_start,
+        "local_data_start": local_data_start,
         "compress_size": info.compress_size,
         "uncompressed_size": info.file_size,
-        "remote_archive_size": rf.size,
         "bytes_written": 0,
     }
+    # The progress sidecar is deleted once finalize_container() completes,
+    # so its mere existence means a prior run got interrupted mid-transfer
+    # -- safe to resume as long as the metadata matches exactly.
     if (
         existing is not None
         and dest.exists()
         and all(existing.get(k) == fresh_state[k] for k in fresh_state if k != "bytes_written")
-        and dest.stat().st_size == rf.size
+        and dest.stat().st_size == local_data_start + existing.get("bytes_written", 0)
     ):
         print(
             f"  resuming existing container at {dest} "
             f"({existing.get('bytes_written', 0) / 1e9:.2f} GB of compressed data already written)"
         )
-        return data_start, existing.get("bytes_written", 0)
+        return remote_data_start, local_data_start, existing.get("bytes_written", 0)
 
     if existing is not None:
         print("  prior progress found but is stale/inconsistent with the current remote archive -- starting fresh")
 
-    central_dir_start = zf.start_dir
-    tail = rf_read_at(rf, central_dir_start, rf.size - central_dir_start)
-
     dest.parent.mkdir(parents=True, exist_ok=True)
     with dest.open("wb") as out:  # intentional fresh-start truncate; only reached above when NOT resuming
-        out.truncate(rf.size)  # preallocate as a sparse file
-        out.seek(info.header_offset)
-        out.write(header_probe[: LOCAL_HEADER_FIXED_SIZE + fname_len + extra_len])
-        out.seek(central_dir_start)
-        out.write(tail)
+        out.write(local_header_bytes)
     _save_progress(dest, fresh_state)
 
-    print(f"  reconstructed sparse container at {dest} (apparent size {rf.size/1e9:.2f} GB)")
-    return data_start, 0
+    print(
+        f"  started minimal container at {dest} "
+        f"(local header written, {info.compress_size/1e9:.2f} GB of data to append)"
+    )
+    return remote_data_start, local_data_start, 0
+
+
+def finalize_container(dest: Path, zf: zipfile.ZipFile, member: str, local_data_start: int) -> None:
+    """Append a freshly-built central directory + EOCD to a container
+    whose local header + full compressed data have already been written,
+    making it a complete, valid, minimal single-entry ZIP file."""
+    info = zf.getinfo(member)
+    actual_size = dest.stat().st_size
+    expected_size = local_data_start + info.compress_size
+    if actual_size != expected_size:
+        raise OSError(
+            f"container size mismatch before finalizing: got {actual_size} bytes, "
+            f"expected {expected_size} (local header + full compressed data)"
+        )
+    cd_record = build_cd_record(info, new_local_header_offset=0)
+    tail = build_zip64_eocd_tail(entry_count=1, cd_size=len(cd_record), cd_offset=actual_size)
+    with dest.open("ab") as out:
+        out.write(cd_record)
+        out.write(tail)
 
 
 def rf_read_at(rf: HTTPRangeFile, offset: int, n: int) -> bytes:
@@ -247,20 +308,22 @@ def cmd_extract_platform(args: argparse.Namespace) -> None:
             return
 
         # Method 9 (Deflate64) isn't supported by Python's zipfile. Rebuild
-        # a sparse local container (real header+data for this member, real
-        # central directory/EOCD, everything else a hole) and hand it to
-        # 7z, which does support Deflate64.
+        # a *minimal* single-entry local container (this member's local
+        # header + data at local offset 0, plus a freshly-built central
+        # directory/EOCD) and hand it to 7z, which does support Deflate64.
         if info.compress_type != 9:
             print(f"ERROR: unsupported compression method {info.compress_type}", file=sys.stderr)
             sys.exit(1)
 
         container = dest.with_suffix(".container.zip")
         print(f"  compression method 9 (Deflate64) — not supported by Python zipfile; using 7z via {container}")
-        data_start, already_written = build_sparse_single_member_zip(rf, zf, member, container)
+        remote_data_start, local_data_start, already_written = start_minimal_container(rf, zf, member, container)
         stream_compressed_data_to_file(
-            rf, data_start, info.compress_size, container, data_start, already_written=already_written
+            rf, remote_data_start, info.compress_size, container, local_data_start, already_written=already_written
         )
         print(f"  HTTP range requests issued so far: {rf.request_count}, bytes fetched: {rf.bytes_fetched/1e9:.2f} GB")
+        finalize_container(container, zf, member, local_data_start)
+        print(f"  finalized container (appended central directory + EOCD) -> {container}")
 
         dest.parent.mkdir(parents=True, exist_ok=True)
         print(f"  running 7z to decompress {member} from {container}")

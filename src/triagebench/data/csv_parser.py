@@ -75,8 +75,22 @@ def build_filing_time_features(row: dict[str, Any]) -> dict[str, str]:
     return {k: row.get(k, "") for k in FILING_TIME_FEATURE_ALLOWLIST}
 
 
-def raise_csv_field_size_limit(limit: int = 50_000_000) -> None:
-    """Some Description/Comments/History fields exceed the csv module default."""
+# Measured against the real Platform_dataset_issues.csv: the largest
+# single field found across all 122,496 rows is an `Attachments` value of
+# 406,417,641 bytes (row 101931) -- almost certainly a large binary
+# attachment base64-embedded by the Issuex extractor. Attachments is
+# already excluded from model input (see POST_HOC_FIELDS) and from
+# every leakage-sensitive path, but the CSV parser must not crash on it.
+# The default below is set with real headroom above that measured max,
+# not chosen arbitrarily.
+_MEASURED_MAX_FIELD_BYTES = 406_417_641  # Attachments, Platform row 101931
+DEFAULT_CSV_FIELD_SIZE_LIMIT = 1_000_000_000  # ~2.5x the measured max
+
+
+def raise_csv_field_size_limit(limit: int = DEFAULT_CSV_FIELD_SIZE_LIMIT) -> None:
+    """Some Attachments/Comments/Description fields exceed the csv module
+    default (128KB). See _MEASURED_MAX_FIELD_BYTES for the real observed
+    maximum this default was sized against."""
     csv.field_size_limit(limit)
 
 

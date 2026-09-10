@@ -47,3 +47,36 @@ filesystem hole) and decompress it with `7z` (installed via
 supports Deflate64 natively. This preserves the "don't download unrelated
 data" goal — the sparse container's on-disk footprint is dominated by the
 ~8GB of actually-written compressed bytes, not its ~17GB apparent size.
+
+## 2026-09-10 — Correction: sparse-container layout doesn't work with p7zip 17.05 at real scale
+
+The sparse-container design above (preserving the target entry at its
+*original* multi-GB absolute offset) was implemented and unit-tested
+successfully, but **failed against the real archive**: p7zip 17.05
+refused to open the reconstructed ~17GB file at all ("Can't open as
+archive"), despite every structural region being independently verified
+byte-correct (local header, central directory, ZIP64 EOCD chain all
+checked by hand with `xxd`/`struct`).
+
+Root-caused rather than worked around blindly: reproduced the exact
+failure with a synthetic sparse file isolated to one variable at a time
+(compression method, ZIP64 usage, trailing gap size, leading gap size).
+The failure is specifically triggered by a large *leading* gap before the
+archive's true start — works fine at ~1KB, fails completely at ~9GB.
+This is almost certainly a scale limitation in p7zip 17.05's legacy
+SFX-offset-detection heuristic (designed for small prepended stubs, a few
+hundred KB to a few MB, never tested at multi-GB scale).
+
+**Corrected design**: build a *minimal* single-entry container instead --
+the target entry's local header + compressed data at local offset 0,
+followed by a freshly-constructed (not reused/patched) central directory
+record and ZIP64 EOCD/locator/classic-EOCD referencing that offset. No
+leading gap exists, so the buggy heuristic is never triggered. Validated
+against a real `7z` subprocess call in
+`tests/test_prepare_data_resume.py` before re-running against real data.
+See `docs/EXPERIMENT_LOG.md` (EXP-002) for the full repro/fix narrative.
+
+This is left as a *correction* entry rather than an edit to the original
+decision above, per this file's own stated policy (a log, not a plan) --
+the original reasoning for using 7z at all (Deflate64 support) still
+holds; only the container-layout strategy changed.
