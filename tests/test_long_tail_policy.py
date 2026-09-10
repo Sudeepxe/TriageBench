@@ -18,9 +18,11 @@ from triagebench.evaluation.long_tail_policy import (
     evaluate_with_policy,
     full_micro_f1_report,
     missing_primary_classes,
+    primary_macro_f1_metric,
     primary_macro_f1_report,
     rare_class_report,
 )
+from triagebench.evaluation.metrics import bootstrap_ci, macro_f1_metric
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PHASE1_PLATFORM_REPORT = REPO_ROOT / "reports" / "phase1_platform.json"
@@ -136,6 +138,39 @@ def test_evaluate_with_policy_structure_and_determinism():
     assert result1["full_n_examples"] == 83
     assert result1["primary_n_examples"] == 80
     assert "Incubator" in result1["rare_class_metrics"]
+
+
+def test_primary_macro_f1_metric_matches_the_report_exactly():
+    # Regression test for a real bug caught during Arm 0's first run: a
+    # bootstrap CI computed with the generic (unfiltered) macro_f1_metric
+    # silently disagreed with the policy-filtered point estimate from
+    # primary_macro_f1_report, because they measure different things
+    # (21-class vs. 20-class macro average). primary_macro_f1_metric must
+    # always agree with primary_macro_f1_report's .macro_f1 exactly, and
+    # must differ from the generic (unfiltered) metric whenever a rare
+    # class is present with errors -- proving it's actually filtering.
+    y_true = ["UI"] * 60 + ["SWT"] * 40 + ["Incubator"] * 10
+    y_pred = ["UI"] * 60 + ["SWT"] * 30 + ["UI"] * 10 + ["SWT"] * 10  # SWT hurt, Incubator all wrong
+
+    report = primary_macro_f1_report(y_true, y_pred)
+    assert primary_macro_f1_metric(y_true, y_pred) == report.macro_f1
+
+    unfiltered = macro_f1_metric(y_true, y_pred)
+    assert primary_macro_f1_metric(y_true, y_pred) != unfiltered, (
+        "primary_macro_f1_metric must differ from the unfiltered metric when a rare class has errors "
+        "-- if they're equal, the filtering isn't actually happening"
+    )
+
+
+def test_bootstrap_ci_of_primary_macro_f1_uses_the_filtered_metric():
+    # The bootstrap CI's own point_estimate field must match the actual
+    # reported primary macro-F1 -- this is the literal shape of the bug
+    # that shipped in Arm 0's first run before being caught.
+    y_true = ["UI"] * 60 + ["SWT"] * 40 + ["Incubator"] * 10
+    y_pred = ["UI"] * 55 + ["SWT"] * 5 + ["SWT"] * 40 + ["UI"] * 10
+    report = primary_macro_f1_report(y_true, y_pred)
+    ci = bootstrap_ci(y_true, y_pred, primary_macro_f1_metric, n_resamples=50, seed=0)
+    assert ci["point_estimate"] == report.macro_f1
 
 
 def test_policy_is_identical_across_repeated_imports():

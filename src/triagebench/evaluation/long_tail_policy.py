@@ -90,6 +90,24 @@ def primary_macro_f1_report(y_true: list[str], y_pred: list[str]) -> Classificat
     return classification_report(filtered_true, filtered_pred)
 
 
+def primary_macro_f1_metric(y_true: list[str], y_pred: list[str]) -> float:
+    """Scalar-returning form of primary_macro_f1_report, for use with
+    bootstrap_ci() or any other caller expecting a plain metric function.
+
+    IMPORTANT: bootstrap_ci (or any other resampling-based uncertainty
+    estimate) for the primary macro-F1 figure MUST use this function, not
+    the generic (unfiltered, all-classes) macro_f1_metric from
+    triagebench.evaluation.metrics -- using the wrong one produces a
+    confidence interval for a different metric than the point estimate it
+    is supposedly bracketing. This was a real bug caught during Arm 0's
+    first run (see docs/EXPERIMENT_LOG.md): the reported point estimate
+    used primary_macro_f1_report (20 classes) while its "confidence
+    interval" was computed with the unfiltered macro_f1_metric (21
+    classes, Incubator included), silently disagreeing with each other.
+    """
+    return primary_macro_f1_report(y_true, y_pred).macro_f1
+
+
 def full_micro_f1_report(y_true: list[str], y_pred: list[str]) -> ClassificationReport:
     """Micro-F1 (== accuracy for single-label multiclass) computed over
     ALL examples, rare classes included. Micro-F1 stays interpretable
