@@ -172,3 +172,71 @@ Every major run is recorded here, including failures. Chronological order.
   passed, lint clean.
 - **Result**: Policy frozen. Per instruction, **Arm 0 has not been
   started**. Stopping here for review.
+
+## 2026-09-10 — EXP-003: Phase 2 begins — splits, headroom gate, Arm 0
+
+- **Purpose**: Phase 1 review approved a second time; user authorized
+  full autonomous execution through v1.0.0. Extended `temporal_split()`
+  to carve a real test_in_distribution set (previously stubbed empty),
+  froze older-era fractions (70/15/15 train/val/test-ID) in
+  `configs/experiments.yaml` before any training. Built the model-ready
+  pipeline and ran the headroom gate.
+- **Headroom gate result**: `scripts/prepare_model_data.py` streamed the
+  full 15.34GB CSV row-by-row (never loaded at once) in 56.1s, peak RSS
+  3.1GB (well within the 16GB M5 budget) -- PASS. Output: a 166MB
+  compact dataset (122,496 rows: id, filing-time text, Component,
+  Creation time, label_stable). Per-row label_stable computation
+  reproduced Phase 1's aggregate finding exactly (82.19% stable),
+  cross-validating both implementations.
+- **Frozen splits** (`scripts/build_splits.py` ->
+  `reports/results/splits/platform_splits.json`): train=72,736,
+  val=15,585, test_in_distribution=15,585, test_temporal_shift=18,590.
+  10 duplicate groups spanned the temporal boundary (unified onto the
+  earlier member's side, per the existing group-first algorithm).
+  Real finding: `Update  (deprecated - use Eclipse>Equinox>p2)` has
+  zero examples in test_temporal_shift (makes sense -- a deprecated
+  component accumulates no new issues in the recent era). Flagged
+  automatically by `missing_primary_classes_in_eval_set`, not a bug.
+- **Bug found and fixed immediately after Arm 0's first run**: the
+  bootstrap CI for primary macro-F1 used the generic (unfiltered,
+  21-class) `macro_f1_metric` instead of a policy-filtered (20-class)
+  one, so its `point_estimate` silently disagreed with the actual
+  reported `primary_macro_f1` (0.5994 vs 0.6295 on the full regime).
+  Root cause: two different metric definitions sharing a similar name.
+  Fixed by adding `primary_macro_f1_metric()` to
+  `long_tail_policy.py` and using it for the bootstrap CI; two
+  regression tests added. Arm 0 was re-run in full after the fix (not
+  patched after the fact) -- point estimates were identical (LogReg is
+  deterministic), only the CI changed to match its own point estimate.
+- **Arm 0 result** (TF-IDF + Logistic Regression, C=10.0 selected via a
+  3-value validation-only pilot [0.1, 1.0, 10.0], single seed since
+  lbfgs is a deterministic convex solver):
+
+  | regime | n_train | val primary-F1 | test_ID primary-F1 | test_ID micro-F1 | shift primary-F1 | shift micro-F1 | stable-slice primary-F1 |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | 50/class | 985 | 0.4009 | 0.3955 | 0.4531 | 0.2954 | 0.3921 | 0.4011 |
+  | 200/class | 3,412 | 0.5028 | 0.4990 | 0.5505 | 0.3649 | 0.4850 | 0.5030 |
+  | 1000/class | 15,614 | 0.5674 | 0.5747 | 0.6404 | 0.3980 | 0.5379 | 0.5967 |
+  | full | 72,736 | 0.6155 | 0.6295 | 0.7399 | 0.4261 | 0.6126 | 0.6522 |
+
+  Full-regime bootstrap 95% CI: primary macro-F1 [0.593, 0.657],
+  full micro-F1 [0.732, 0.748] (test_in_distribution).
+- **Interpretation**: Monotonic improvement with more labeled data (no
+  crossover to report yet -- single arm so far). **Substantial temporal
+  degradation**: full-regime primary macro-F1 drops from 0.630
+  (in-distribution) to 0.426 (temporal-shift) -- a ~32% relative drop.
+  This is a real, measured limitation of a bag-of-words classifier under
+  vocabulary/taxonomy drift over the ~7-year gap between the older and
+  recent eras, not an artifact. Stable-label slice consistently
+  outperforms the full test set (0.652 vs 0.630 at full regime),
+  consistent with stable-label issues being less ambiguous to route.
+  Incubator (rare class) scores 0 on the tiny test set it appears in (1
+  example) -- expected given its size, reported transparently rather
+  than hidden.
+- **Latency** (Apple M5, local CPU, scikit-learn, full regime): p50
+  0.186ms, p95 0.288ms, p99 0.411ms single-request; batch-64 throughput
+  ~22,006 req/s. Effectively free at any realistic production volume.
+- **Tests**: 92 passed, lint clean.
+- **Next action**: Arm 1 (encoder fine-tune, ModernBERT-base) -- pilot
+  the smallest regime first to measure real MPS throughput before
+  committing to the full-data regime.
