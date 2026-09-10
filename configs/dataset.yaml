@@ -38,15 +38,15 @@ dataset:
   files:
     sample:
       filename: "sample_data.csv"
-      size_bytes: 2900000  # ~2.9 MB, upstream-reported
+      size_bytes: 2879417  # exact, from Zenodo API file listing; verified against local download's stat size
       md5: "d6ec742ed9e97a9e63acffbb54257d5c"
     full_archive:
       filename: "Eclipse_dataset.zip"
-      size_bytes: 17200000000  # ~17.2 GB, upstream-reported
+      size_bytes: 17158276253  # exact, from Zenodo API file listing (not yet locally verified -- Zenodo outage, see docs/EXPERIMENT_LOG.md)
       md5: "19494c20f33d5b4d4de2cc98d79fe84d"
     readme:
       filename: "README.md"
-      size_bytes: 2600
+      size_bytes: 2614  # exact, from Zenodo API file listing; verified against local download's stat size
       md5: "91348fc06575d922844b61c3eda35fe4"
 
 # Product/task scope for this project (not an upstream property)

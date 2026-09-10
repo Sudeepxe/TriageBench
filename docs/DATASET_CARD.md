@@ -28,6 +28,25 @@ CC-BY-SA-4.0, and any derived dataset artifacts (splits, preprocessed
 files) this project's scripts produce inherit CC-BY-SA-4.0's share-alike
 obligations, independent of this repo's code license. See `LICENSE`.
 
+CC-BY-SA-4.0 permits commercial use and adaptation; it requires (a)
+attribution to the original author, (b) a link to the license, (c)
+indication of whether changes were made, and (d) that adaptations be
+distributed under the same license. This project satisfies (a)-(c) via the
+attribution block below and does not currently distribute any adaptation
+of the dataset itself (only code that operates on a locally-downloaded
+copy), so (d) does not yet apply; if derived data artifacts are ever
+published, they will be licensed CC-BY-SA-4.0, not MIT.
+
+### Required attribution
+
+> This project uses the "Eclipse issue report dataset" by López Durán,
+> Noelia (Universidad de Sevilla), obtained via Zenodo
+> (DOI: [10.5281/zenodo.15348468](https://doi.org/10.5281/zenodo.15348468),
+> v1.0.1), licensed under
+> [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+> No modifications have been made to the redistributed data (the dataset
+> is not redistributed by this project at all; see "Reproducing" below).
+
 ## Scope used by TriageBench
 
 - **Product**: Eclipse Platform only (`Product == "Platform"`). Cross-product
