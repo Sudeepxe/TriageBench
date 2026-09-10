@@ -47,6 +47,25 @@ def test_csv_parsing_config_matches_parser_module(dataset_cfg):
     assert csv_cfg["encoding"] == ENCODING
 
 
+def test_long_tail_policy_config_matches_the_frozen_code_policy():
+    # configs/experiments.yaml is documentation-facing; the enforced
+    # policy lives in code (long_tail_policy.py). This guards them from
+    # ever silently disagreeing with each other.
+    from triagebench.evaluation.long_tail_policy import (
+        MINIMUM_SUPPORT_THRESHOLD,
+        PRIMARY_CLASSES,
+        RARE_CLASSES,
+    )
+
+    cfg = yaml.safe_load(EXPERIMENTS_CONFIG.read_text())
+    ltp = cfg["long_tail_policy"]
+    assert ltp["decided"] is True
+    assert ltp["minimum_support_threshold"] == MINIMUM_SUPPORT_THRESHOLD
+    assert ltp["rare_class_treatment"] == "secondary_analysis_only"
+    assert set(ltp["primary_classes"]) == PRIMARY_CLASSES
+    assert set(ltp["rare_classes"]) == RARE_CLASSES
+
+
 def test_temporal_split_boundary_is_frozen_and_unchanged():
     # Guards against silently moving the split boundary after it was
     # frozen from the real Phase 1 Platform measurement (see

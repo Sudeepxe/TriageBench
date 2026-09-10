@@ -131,3 +131,44 @@ Every major run is recorded here, including failures. Chronological order.
   stopping here to report findings.
 - **Next action**: Await review of Phase 1 findings before any headroom
   gate / Arm 0 work begins.
+
+## 2026-09-10 — DECISION-001: Long-tail policy frozen (pre-registered, no model results used)
+
+- **Purpose**: Phase 1 review approved; before any model training, freeze
+  a deterministic minimum-support policy for evaluation, decided purely
+  from the measured Phase 1 taxonomy.
+- **Input**: `reports/phase1_platform.json` component_taxonomy.counts (21
+  classes, 122,496 rows) -- no model has been trained yet, so this
+  decision could not have been informed by any model's performance.
+- **Decision**: Minimum support threshold = 50 (matches the boundary
+  Phase 1's own inspection already reports as `classes_below_50_support`,
+  so the threshold wasn't invented fresh for this policy). Exactly one
+  class falls below it: Incubator (n=15). The other 20 classes are
+  "primary." Treatment is "secondary_analysis_only": the full 21-class
+  taxonomy is preserved everywhere (dataset, splits, training); rare
+  classes are excluded only from the primary macro-F1 average and always
+  reported separately (per-class metrics + full micro-F1 + confusion
+  matrix, all of which still include Incubator).
+- **Implementation**: `src/triagebench/evaluation/long_tail_policy.py`
+  hardcodes the frozen class lists (`PRIMARY_CLASSES`/`RARE_CLASSES`,
+  both `frozenset`) and exposes `primary_macro_f1_report`,
+  `full_micro_f1_report`, `rare_class_report`, `missing_primary_classes`,
+  and `evaluate_with_policy` as the single canonical evaluation path
+  every model arm must use -- no arm may recompute or locally redefine
+  the threshold. `configs/experiments.yaml` and
+  `reports/class_filtering.json` mirror the same policy for
+  documentation/discoverability, guarded by a test asserting they never
+  disagree with the code.
+- **Tests**: `tests/test_long_tail_policy.py` (15 tests) verifies: the
+  primary/rare partition is exact and matches each class's own measured
+  support; the frozen support snapshot matches the live
+  `reports/phase1_platform.json` (catches drift if the dataset is ever
+  re-extracted); primary macro-F1 genuinely excludes rare-class true
+  labels from its average while full micro-F1 genuinely includes them;
+  the rare-class report contains only rare classes; and the policy
+  produces byte-identical results across independent imports (simulating
+  two different arms' evaluation scripts). Plus a config-vs-code
+  cross-check in `tests/test_config_validation.py`. Full suite: 85
+  passed, lint clean.
+- **Result**: Policy frozen. Per instruction, **Arm 0 has not been
+  started**. Stopping here for review.

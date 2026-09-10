@@ -1,0 +1,41 @@
+{
+  "policy_name": "long_tail_minimum_support_v1",
+  "decided_date": "2026-09-10",
+  "decided_before_any_model_result": true,
+  "source_measurement": "reports/phase1_platform.json (component_taxonomy.counts)",
+  "minimum_support_threshold": 50,
+  "threshold_rationale": "Round, common minimum for a per-class F1 estimate to be minimally statistically meaningful; also exactly matches the boundary Phase 1 inspection already reports (classes_below_50_support), so no new threshold was invented specifically for this policy.",
+  "classes_total": 21,
+  "primary_classes": {
+    "UI": 37307,
+    "SWT": 25495,
+    "Team": 7205,
+    "Debug": 6920,
+    "Releng": 6731,
+    "Resources": 5495,
+    "Text": 5126,
+    "User Assistance": 5023,
+    "IDE": 4415,
+    "Ant": 4129,
+    "CVS": 3301,
+    "Update  (deprecated - use Eclipse>Equinox>p2)": 3278,
+    "Runtime": 3122,
+    "Compare": 2075,
+    "Search": 1244,
+    "Doc": 1123,
+    "Website": 186,
+    "Scripting": 108,
+    "PMC": 106,
+    "WebDAV": 92
+  },
+  "rare_classes": {
+    "Incubator": 15
+  },
+  "rare_class_treatment": "secondary_analysis_only",
+  "rare_class_treatment_detail": "Rare classes are NEVER excluded from the dataset, never dropped from train/val/test splits, and never merged into an Other bucket -- the full 21-component taxonomy is preserved everywhere. They are excluded only from the denominator of the PRIMARY headline macro-F1 figure (examples whose true label is a rare class do not contribute to that unweighted per-class average), because a single class with 15 total examples produces a per-class F1 estimate too noisy to usefully average alongside classes with thousands of examples. They remain fully visible via: (1) full micro-F1, computed over ALL examples including rare ones, naturally weighted by true frequency; (2) a dedicated rare-class secondary report (precision/recall/F1/support per rare class, from the exact same predictions used everywhere else); (3) the confusion matrix, which always includes every class.",
+  "orthogonal_axes": {
+    "primary_vs_rare": "this policy -- based on total dataset class support",
+    "stable_label_slice": "a SEPARATE axis (issues with zero recorded Component-change events, 82.2% of Platform issues per reports/phase1_platform.json) applied independently -- the primary/rare split is evaluated both on the full test set and, secondarily, on the stable-label subset; the two axes are never conflated into one category."
+  },
+  "enforced_by": "src/triagebench/evaluation/long_tail_policy.py, guarded by tests/test_long_tail_policy.py"
+}

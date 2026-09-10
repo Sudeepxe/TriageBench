@@ -131,6 +131,50 @@ Resources (5,495), Text (5,126), User Assistance (5,023), IDE (4,415),
 Ant (4,129). One label shows a visible historical rename:
 `Update  (deprecated - use Eclipse>Equinox>p2)` (3,278 issues).
 
+### Long-tail policy (frozen, pre-registered before any model result)
+
+Full rationale in `docs/METHODOLOGY.md` and `reports/class_filtering.json`;
+enforced in code by `src/triagebench/evaluation/long_tail_policy.py`.
+**Minimum support threshold: 50.** The full 21-class taxonomy is preserved
+everywhere (no class is ever dropped, relabeled, or merged) — the
+threshold only determines which classes contribute to the primary
+headline macro-F1 figure; rare classes are always reported separately.
+
+| # | Class | Support | Bucket |
+|---|---|---:|---|
+| 1 | UI | 37,307 | Primary |
+| 2 | SWT | 25,495 | Primary |
+| 3 | Team | 7,205 | Primary |
+| 4 | Debug | 6,920 | Primary |
+| 5 | Releng | 6,731 | Primary |
+| 6 | Resources | 5,495 | Primary |
+| 7 | Text | 5,126 | Primary |
+| 8 | User Assistance | 5,023 | Primary |
+| 9 | IDE | 4,415 | Primary |
+| 10 | Ant | 4,129 | Primary |
+| 11 | CVS | 3,301 | Primary |
+| 12 | Update  (deprecated - use Eclipse>Equinox>p2) | 3,278 | Primary |
+| 13 | Runtime | 3,122 | Primary |
+| 14 | Compare | 2,075 | Primary |
+| 15 | Search | 1,244 | Primary |
+| 16 | Doc | 1,123 | Primary |
+| 17 | Website | 186 | Primary |
+| 18 | Scripting | 108 | Primary |
+| 19 | PMC | 106 | Primary |
+| 20 | WebDAV | 92 | Primary |
+| 21 | **Incubator** | **15** | **Rare (secondary analysis only)** |
+
+- **Primary macro-F1** (headline metric, all arm comparisons): computed
+  over the 20 primary classes only.
+- **Full micro-F1** (always reported): computed over all 122,496 rows,
+  Incubator included — stays interpretable without any threshold since
+  each class's true frequency naturally weights its own contribution.
+- **Rare-class secondary report**: Incubator's own precision/recall/F1
+  always reported separately, from the same predictions as everything
+  else.
+- This is independent of the stable-label slice below — the two axes are
+  never conflated.
+
 ### Label instability (NOT a human-accuracy ceiling — see `docs/METHODOLOGY.md`)
 
 **`post_filing_routing_label_instability_rate` = 17.81%** — 21,815 of

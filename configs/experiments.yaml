@@ -19,9 +19,28 @@ split:
   frozen: true
 
 long_tail_policy:
-  minimum_support_threshold: null  # pre-registered before model results, from reports/class_filtering.json
-  rare_class_treatment: null       # "exclude" | "other_bucket" | "keep"
-  decided: false
+  # Frozen 2026-09-10 from reports/phase1_platform.json's measured
+  # component_taxonomy.counts (21 classes, 122,496 rows), BEFORE any
+  # model was trained or any model result existed. Enforced in code by
+  # src/triagebench/evaluation/long_tail_policy.py (the single source of
+  # truth every arm's evaluation must import) and guarded by
+  # tests/test_long_tail_policy.py. Full rationale in
+  # reports/class_filtering.json and docs/METHODOLOGY.md. This value
+  # must NOT be changed based on any model result.
+  minimum_support_threshold: 50
+  # "secondary_analysis_only": rare classes are never excluded from the
+  # dataset/splits/training and never merged into an Other bucket (the
+  # full 21-class taxonomy is preserved everywhere); they are excluded
+  # only from the PRIMARY macro-F1 average, and always reported
+  # separately (per-class precision/recall/F1) plus counted normally in
+  # full micro-F1 and the confusion matrix.
+  rare_class_treatment: "secondary_analysis_only"
+  decided: true
+  primary_classes:
+    [UI, SWT, Team, Debug, Releng, Resources, Text, "User Assistance", IDE,
+     Ant, CVS, "Update  (deprecated - use Eclipse>Equinox>p2)", Runtime,
+     Compare, Search, Doc, Website, Scripting, PMC, WebDAV]
+  rare_classes: [Incubator]
 
 data_efficiency_regimes:
   - {examples_per_class: 50}
