@@ -163,6 +163,31 @@ def test_completeness_gap_is_computed_against_stated_total(tmp_path):
     assert report["completeness"]["gap_pct"] == 70.0
 
 
+def test_run_inspection_marks_successful_report_as_measured(tmp_path):
+    rows = [_row(ID="1", Product="Platform", Component="UI",
+                  **{"Creation time": "2015-01-01T00:00:00Z"}, Summary="s", Description="d")]
+    fixture_path = tmp_path / "measured.csv"
+    _write_fixture(fixture_path, rows)
+    report = inspect_phase1.run_inspection(fixture_path, product_filter="Platform", stated_total=None)
+    assert report["status"] == "MEASURED"
+
+
+def test_write_blocked_report_produces_well_formed_json_on_missing_input(tmp_path):
+    missing_input = tmp_path / "does_not_exist.csv"
+    output_path = tmp_path / "blocked.json"
+    report = inspect_phase1.write_blocked_report(output_path, "input file not found", missing_input, "Platform")
+
+    assert report["status"] == "BLOCKED"
+    assert "reason" in report and report["reason"]
+    assert output_path.exists()
+
+    on_disk = json.loads(output_path.read_text())
+    assert on_disk["status"] == "BLOCKED"
+    assert on_disk["input_file"] == str(missing_input)
+    assert on_disk["product_filter_applied"] == "Platform"
+    assert "blocked_at" in on_disk  # a timestamp, so staleness is detectable later
+
+
 def test_non_platform_only_file_reports_zero_scoped_rows_not_a_crash(tmp_path):
     rows = [_row(ID="1", Product="JDT", Component="Text",
                   **{"Creation time": "2015-01-01T00:00:00Z"}, Summary="s", Description="d")]

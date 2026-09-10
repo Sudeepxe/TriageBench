@@ -23,6 +23,7 @@ import json
 import statistics
 import sys
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -315,6 +316,27 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
         ),
     }
 
+    report["status"] = "MEASURED"
+    return report
+
+
+def write_blocked_report(output: Path, reason: str, input_path: Path, product_filter: str | None) -> dict:
+    """Write a machine-readable BLOCKED report instead of merely printing
+    an error and exiting. Downstream consumers (CI, aggregation scripts,
+    a human checking reports/) should always find a well-formed JSON file
+    at the expected path, even when Phase 1 measurement could not run --
+    never nothing, and never a guessed/zeroed-out result standing in for
+    an unmeasured value.
+    """
+    report = {
+        "status": "BLOCKED",
+        "reason": reason,
+        "input_file": str(input_path),
+        "product_filter_applied": product_filter,
+        "blocked_at": datetime.now(UTC).isoformat(),
+    }
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
 
@@ -327,10 +349,23 @@ def main() -> None:
     args = ap.parse_args()
 
     if not args.input.exists():
-        print(f"ERROR: input file not found: {args.input}", file=sys.stderr)
+        reason = f"input file not found: {args.input}"
+        write_blocked_report(args.output, reason, args.input, args.product_filter)
+        print(f"BLOCKED: {reason}", file=sys.stderr)
+        print(f"Wrote BLOCKED status to {args.output}", file=sys.stderr)
         sys.exit(1)
 
-    report = run_inspection(args.input, args.product_filter, args.stated_total)
+    try:
+        report = run_inspection(args.input, args.product_filter, args.stated_total)
+    except ValueError as exc:
+        # e.g. a CSV header mismatch -- a real, reportable blocker, not a
+        # crash with no artifact left behind.
+        reason = f"inspection failed: {exc}"
+        write_blocked_report(args.output, reason, args.input, args.product_filter)
+        print(f"BLOCKED: {reason}", file=sys.stderr)
+        print(f"Wrote BLOCKED status to {args.output}", file=sys.stderr)
+        sys.exit(1)
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     print(f"Wrote {args.output}")
