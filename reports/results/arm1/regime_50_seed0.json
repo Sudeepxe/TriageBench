@@ -1,152 +1,39 @@
 {
   "status": "MEASURED",
-  "arm": "arm0_tfidf_logreg",
-  "regime": "1000",
-  "n_per_class": 1000,
+  "arm": "arm1_encoder_finetune",
+  "model_name": "distilbert-base-uncased",
+  "max_length": 256,
+  "regime": "50",
+  "n_per_class": 50,
   "seed": 0,
-  "seed_note": "LogisticRegression(lbfgs) is a deterministic convex solver given a fixed random_state -- a single seed is used rather than 3, since repeating would reproduce an identical model.",
-  "hyperparameter_selection": {
-    "pilot_results": [
-      {
-        "C": 0.1,
-        "val_primary_macro_f1": 0.5394248653661073,
-        "fit_seconds": 15.3
-      },
-      {
-        "C": 1.0,
-        "val_primary_macro_f1": 0.6041741371466547,
-        "fit_seconds": 25.0
-      },
-      {
-        "C": 10.0,
-        "val_primary_macro_f1": 0.6135673744930095,
-        "fit_seconds": 41.5
-      }
-    ],
-    "selected_C": 10.0
-  },
-  "config": {
-    "max_features": 50000,
-    "ngram_range": [
-      1,
-      2
-    ],
-    "min_df": 2,
-    "sublinear_tf": true,
-    "C": 10.0,
-    "class_weight": "balanced"
+  "hyperparameters": {
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 2e-05
   },
   "long_tail_policy": {
     "minimum_support_threshold": 50
   },
-  "n_train_examples": 15614,
+  "n_train_examples": 985,
   "n_train_classes_present": 21,
-  "train_seconds": 13.0,
-  "val": {
-    "n": 15585,
-    "policy_evaluation": {
-      "policy": {
-        "minimum_support_threshold": 50,
-        "primary_classes": [
-          "Ant",
-          "CVS",
-          "Compare",
-          "Debug",
-          "Doc",
-          "IDE",
-          "PMC",
-          "Releng",
-          "Resources",
-          "Runtime",
-          "SWT",
-          "Scripting",
-          "Search",
-          "Team",
-          "Text",
-          "UI",
-          "Update  (deprecated - use Eclipse>Equinox>p2)",
-          "User Assistance",
-          "WebDAV",
-          "Website"
-        ],
-        "rare_classes": [
-          "Incubator"
-        ]
-      },
-      "primary_macro_f1": 0.5673647580556331,
-      "primary_n_examples": 15583,
-      "full_micro_f1": 0.63702277831248,
-      "full_n_examples": 15585,
-      "rare_class_metrics": {
-        "Incubator": {
-          "precision": 0.5,
-          "recall": 1.0,
-          "f1": 0.6666666666666666,
-          "support": 2
-        }
-      },
-      "missing_primary_classes_in_eval_set": []
+  "train_seconds": 105.9,
+  "train_loss_history": [
+    {
+      "step": 50,
+      "loss": 3.0417742919921875,
+      "epoch": 0.8064516129032258
     },
-    "primary_macro_f1_bootstrap_ci": {
-      "point_estimate": 0.5673647580556331,
-      "ci_low": 0.5407598422539142,
-      "ci_high": 0.5920075853380851,
-      "n_resamples": 1000,
-      "confidence": 0.95
+    {
+      "step": 100,
+      "loss": 2.980467529296875,
+      "epoch": 1.6129032258064515
     },
-    "full_micro_f1_bootstrap_ci": {
-      "point_estimate": 0.63702277831248,
-      "ci_low": 0.6293872313121591,
-      "ci_high": 0.6447224895733077,
-      "n_resamples": 1000,
-      "confidence": 0.95
-    },
-    "n_stable_label": 12603,
-    "n_unstable_label": 2982,
-    "stable_label_slice_evaluation": {
-      "policy": {
-        "minimum_support_threshold": 50,
-        "primary_classes": [
-          "Ant",
-          "CVS",
-          "Compare",
-          "Debug",
-          "Doc",
-          "IDE",
-          "PMC",
-          "Releng",
-          "Resources",
-          "Runtime",
-          "SWT",
-          "Scripting",
-          "Search",
-          "Team",
-          "Text",
-          "UI",
-          "Update  (deprecated - use Eclipse>Equinox>p2)",
-          "User Assistance",
-          "WebDAV",
-          "Website"
-        ],
-        "rare_classes": [
-          "Incubator"
-        ]
-      },
-      "primary_macro_f1": 0.5870262044680548,
-      "primary_n_examples": 12602,
-      "full_micro_f1": 0.6680155518527334,
-      "full_n_examples": 12603,
-      "rare_class_metrics": {
-        "Incubator": {
-          "precision": 0.5,
-          "recall": 1.0,
-          "f1": 0.6666666666666666,
-          "support": 1
-        }
-      },
-      "missing_primary_classes_in_eval_set": []
+    {
+      "step": 150,
+      "loss": 2.8829891967773436,
+      "epoch": 2.4193548387096775
     }
-  },
+  ],
   "test_in_distribution": {
     "n": 15585,
     "policy_evaluation": {
@@ -178,9 +65,9 @@
           "Incubator"
         ]
       },
-      "primary_macro_f1": 0.574672538462581,
+      "primary_macro_f1": 0.17793163012055854,
       "primary_n_examples": 15584,
-      "full_micro_f1": 0.6404234841193456,
+      "full_micro_f1": 0.1978825794032724,
       "full_n_examples": 15585,
       "rare_class_metrics": {
         "Incubator": {
@@ -193,21 +80,20 @@
       "missing_primary_classes_in_eval_set": []
     },
     "primary_macro_f1_bootstrap_ci": {
-      "point_estimate": 0.574672538462581,
-      "ci_low": 0.5442109809260176,
-      "ci_high": 0.5997871070111181,
+      "point_estimate": 0.17793163012055854,
+      "ci_low": 0.15339504136337462,
+      "ci_high": 0.19809846750803656,
       "n_resamples": 1000,
       "confidence": 0.95
     },
     "full_micro_f1_bootstrap_ci": {
-      "point_estimate": 0.6404234841193456,
-      "ci_low": 0.6324671158164902,
-      "ci_high": 0.6481231953801733,
+      "point_estimate": 0.1978825794032724,
+      "ci_low": 0.1915303176130895,
+      "ci_high": 0.20410651267244145,
       "n_resamples": 1000,
       "confidence": 0.95
     },
     "n_stable_label": 12677,
-    "n_unstable_label": 2908,
     "stable_label_slice_evaluation": {
       "policy": {
         "minimum_support_threshold": 50,
@@ -237,9 +123,9 @@
           "Incubator"
         ]
       },
-      "primary_macro_f1": 0.5966967431514428,
+      "primary_macro_f1": 0.1866447442170151,
       "primary_n_examples": 12676,
-      "full_micro_f1": 0.6709000552181116,
+      "full_micro_f1": 0.20635797112881596,
       "full_n_examples": 12677,
       "rare_class_metrics": {
         "Incubator": {
@@ -283,9 +169,9 @@
           "Incubator"
         ]
       },
-      "primary_macro_f1": 0.3980227062345509,
+      "primary_macro_f1": 0.09963947435172293,
       "primary_n_examples": 18586,
-      "full_micro_f1": 0.5378698224852071,
+      "full_micro_f1": 0.17703066164604625,
       "full_n_examples": 18590,
       "rare_class_metrics": {
         "Incubator": {
@@ -300,21 +186,20 @@
       ]
     },
     "primary_macro_f1_bootstrap_ci": {
-      "point_estimate": 0.3980227062345509,
-      "ci_low": 0.38675485779378255,
-      "ci_high": 0.4296021223265908,
+      "point_estimate": 0.09963947435172293,
+      "ci_low": 0.09463370948953573,
+      "ci_high": 0.11001956931475293,
       "n_resamples": 1000,
       "confidence": 0.95
     },
     "full_micro_f1_bootstrap_ci": {
-      "point_estimate": 0.5378698224852071,
-      "ci_low": 0.5305002689618075,
-      "ci_high": 0.5447014523937601,
+      "point_estimate": 0.17703066164604625,
+      "ci_low": 0.17149004841312535,
+      "ci_high": 0.18294782140935986,
       "n_resamples": 1000,
       "confidence": 0.95
     },
     "n_stable_label": 16450,
-    "n_unstable_label": 2140,
     "stable_label_slice_evaluation": {
       "policy": {
         "minimum_support_threshold": 50,
@@ -344,9 +229,9 @@
           "Incubator"
         ]
       },
-      "primary_macro_f1": 0.40086218210372193,
+      "primary_macro_f1": 0.09940582494885325,
       "primary_n_examples": 16446,
-      "full_micro_f1": 0.5498480243161095,
+      "full_micro_f1": 0.18559270516717324,
       "full_n_examples": 16450,
       "rare_class_metrics": {
         "Incubator": {
@@ -362,15 +247,16 @@
     }
   },
   "latency": {
-    "environment": "Apple M5 MacBook Pro (local CPU, scikit-learn)",
-    "n_single_measurements": 200,
-    "p50_ms": 0.226,
-    "p95_ms": 0.354,
-    "p99_ms": 0.542,
-    "batch_size": 64,
-    "batch_throughput_per_sec": 9239.2
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+    "n_single_measurements": 50,
+    "p50_ms": 6.957,
+    "p95_ms": 10.267,
+    "p99_ms": 16.612,
+    "batch_size": 32,
+    "batch_throughput_per_sec": 10379.4,
+    "max_length": 256
   },
-  "hardware": "macOS-27.0-arm64-arm-64bit",
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
   "bootstrap_resamples": 1000,
   "git_commit": "eadb40dabb62259fb2b1d34f52d65b836cb7aec8",
   "split": {

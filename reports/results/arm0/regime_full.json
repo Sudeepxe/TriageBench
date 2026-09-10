@@ -10,17 +10,17 @@
       {
         "C": 0.1,
         "val_primary_macro_f1": 0.5394248653661073,
-        "fit_seconds": 14.9
+        "fit_seconds": 15.3
       },
       {
         "C": 1.0,
         "val_primary_macro_f1": 0.6041741371466547,
-        "fit_seconds": 24.7
+        "fit_seconds": 25.0
       },
       {
         "C": 10.0,
         "val_primary_macro_f1": 0.6135673744930095,
-        "fit_seconds": 42.6
+        "fit_seconds": 41.5
       }
     ],
     "selected_C": 10.0
@@ -41,7 +41,7 @@
   },
   "n_train_examples": 72736,
   "n_train_classes_present": 21,
-  "train_seconds": 39.1,
+  "train_seconds": 50.9,
   "val": {
     "n": 15585,
     "policy_evaluation": {
@@ -364,12 +364,25 @@
   "latency": {
     "environment": "Apple M5 MacBook Pro (local CPU, scikit-learn)",
     "n_single_measurements": 200,
-    "p50_ms": 0.186,
-    "p95_ms": 0.292,
-    "p99_ms": 0.421,
+    "p50_ms": 0.211,
+    "p95_ms": 0.33,
+    "p99_ms": 0.473,
     "batch_size": 64,
-    "batch_throughput_per_sec": 21967.3
+    "batch_throughput_per_sec": 18313.0
   },
   "hardware": "macOS-27.0-arm64-arm-64bit",
-  "bootstrap_resamples": 1000
+  "bootstrap_resamples": 1000,
+  "git_commit": "eadb40dabb62259fb2b1d34f52d65b836cb7aec8",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
 }
