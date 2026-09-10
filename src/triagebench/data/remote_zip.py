@@ -19,8 +19,14 @@ import time
 import requests
 
 DEFAULT_BUFFER_SIZE = 16 * 1024 * 1024  # 16MB per HTTP range request
-MAX_RETRIES = 6
+MAX_RETRIES = 8
 RETRY_BACKOFF_BASE_SECONDS = 2.0
+RETRY_BACKOFF_MAX_SECONDS = 60.0
+# Zenodo's file server has advertised a per-window request-count limit in
+# response headers (x-ratelimit-limit) and returns intermittent 504s under
+# sustained sequential range requests. A small inter-request pause costs
+# little against network-bound transfer time and measurably reduces retries.
+INTER_REQUEST_DELAY_SECONDS = 0.4
 
 
 class HTTPRangeFile:
@@ -75,6 +81,8 @@ class HTTPRangeFile:
         last_exc: Exception | None = None
         for attempt in range(MAX_RETRIES):
             try:
+                if INTER_REQUEST_DELAY_SECONDS:
+                    time.sleep(INTER_REQUEST_DELAY_SECONDS)
                 resp = self.session.get(
                     self.url, headers={"Range": f"bytes={self.pos}-{end}"}, timeout=self.timeout
                 )
@@ -84,9 +92,12 @@ class HTTPRangeFile:
                 self._buf_start = self.pos
                 self._buf = resp.content
                 return
-            except (requests.exceptions.RequestException,) as exc:
+            except requests.exceptions.RequestException as exc:
                 last_exc = exc
-                wait = RETRY_BACKOFF_BASE_SECONDS * (2 ** attempt)
+                retry_after = getattr(exc, "response", None) and exc.response.headers.get("Retry-After")
+                wait = float(retry_after) if retry_after else min(
+                    RETRY_BACKOFF_BASE_SECONDS * (2 ** attempt), RETRY_BACKOFF_MAX_SECONDS
+                )
                 print(f"  [retry {attempt + 1}/{MAX_RETRIES}] range GET failed ({exc}); retrying in {wait:.0f}s")
                 time.sleep(wait)
         raise last_exc  # type: ignore[misc]

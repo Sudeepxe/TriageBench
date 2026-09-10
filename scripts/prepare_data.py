@@ -84,7 +84,8 @@ def stream_compressed_data_to_file(rf: HTTPRangeFile, offset: int, length: int, 
     directly into `dest` at file position `position`, in chunks, with
     progress output. This is the only large network transfer this script
     performs (~compress_size bytes for the target member)."""
-    chunk = 12 * 1024 * 1024  # kept modest: large ranges have hit transient 504s from Zenodo
+    chunk = 24 * 1024 * 1024  # Zenodo returns intermittent 504s regardless of request size;
+    # HTTPRangeFile retries with backoff, so this trades off total request count vs retry cost.
     written = 0
     last_pct = -1
     t0 = time.time()
@@ -96,7 +97,7 @@ def stream_compressed_data_to_file(rf: HTTPRangeFile, offset: int, length: int, 
             n = min(chunk, remaining)
             data = rf_read_at(rf, pos, n)
             if not data:
-                raise IOError("short read from remote archive")
+                raise OSError("short read from remote archive")
             out.write(data)
             written += len(data)
             pos += len(data)
@@ -158,7 +159,10 @@ def cmd_extract_platform(args: argparse.Namespace) -> None:
             print(f"ERROR: expected member {member!r} not found. Entries: {names}", file=sys.stderr)
             sys.exit(1)
         info = zf.getinfo(member)
-        print(f"  {member}: compressed={info.compress_size/1e9:.2f}GB uncompressed={info.file_size/1e9:.2f}GB method={info.compress_type}")
+        print(
+            f"  {member}: compressed={info.compress_size/1e9:.2f}GB "
+            f"uncompressed={info.file_size/1e9:.2f}GB method={info.compress_type}"
+        )
 
         if info.compress_type == zipfile.ZIP_DEFLATED or info.compress_type == zipfile.ZIP_STORED:
             extract_member(zf, member, dest, info.file_size)

@@ -22,7 +22,7 @@ import argparse
 import json
 import statistics
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -231,10 +231,11 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
 
     n_head = 10
     head_share = sum(c for _, c in component_counts.most_common(n_head))
+    not_measured = "NOT MEASURED (no product filter)"
     report["component_taxonomy"] = {
         "distinct_components": len(component_counts),
         "counts": dict(component_counts.most_common()),
-        f"head_{n_head}_share_pct": pct(head_share, scoped_rows) if product_filter else "NOT MEASURED (no product filter)",
+        f"head_{n_head}_share_pct": pct(head_share, scoped_rows) if product_filter else not_measured,
         "classes_below_50_support": [c for c, n in component_counts.items() if n < 50],
         "classes_below_10_support": [c for c, n in component_counts.items() if n < 10],
     }
@@ -280,12 +281,14 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
         "history_parse_failures": history_parse_failures,
         "issues_with_component_change": issues_with_component_change,
         "post_filing_routing_label_instability_rate_pct": (
-            pct(issues_with_component_change, scoped_rows) if product_filter else "NOT MEASURED (no product filter)"
+            pct(issues_with_component_change, scoped_rows) if product_filter else not_measured
         ),
-        "component_change_count_distribution": dict(Counter(component_change_counts).most_common()) if component_change_counts else {},
+        "component_change_count_distribution": (
+            dict(Counter(component_change_counts).most_common()) if component_change_counts else {}
+        ),
         "filing_time_component_reconstructed": filing_time_component_reconstructed,
         "filing_time_component_reconstruction_rate_pct": (
-            pct(filing_time_component_reconstructed, scoped_rows) if product_filter else "NOT MEASURED (no product filter)"
+            pct(filing_time_component_reconstructed, scoped_rows) if product_filter else not_measured
         ),
         "filing_time_vs_current_component_matches": filing_time_component_matches_current,
         "filing_time_vs_current_component_mismatches": filing_time_component_mismatches,

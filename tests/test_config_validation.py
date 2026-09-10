@@ -39,7 +39,7 @@ def test_scope_excludes_cross_product_transfer(dataset_cfg):
 
 
 def test_csv_parsing_config_matches_parser_module(dataset_cfg):
-    from triagebench.data.csv_parser import ESCAPECHAR, ENCODING
+    from triagebench.data.csv_parser import ENCODING, ESCAPECHAR
 
     csv_cfg = dataset_cfg["csv_parsing"]
     assert csv_cfg["escapechar"] == ESCAPECHAR

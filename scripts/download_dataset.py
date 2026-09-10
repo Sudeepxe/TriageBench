@@ -56,7 +56,10 @@ def download(url: str, dest: Path) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("which", choices=["sample", "full_archive", "readme"])
-    ap.add_argument("--force", action="store_true", help="re-download even if the file already exists with a matching checksum")
+    ap.add_argument(
+        "--force", action="store_true",
+        help="re-download even if the file already exists with a matching checksum",
+    )
     args = ap.parse_args()
 
     cfg = load_config()

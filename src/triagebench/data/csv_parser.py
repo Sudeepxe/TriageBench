@@ -117,7 +117,7 @@ def iter_rows(path: str | Path) -> Any:
                 # rather than silently zip()-truncating/padding.
                 yield {"__malformed__": True, "__raw__": row}
                 continue
-            record = dict(zip(header, row))
+            record = dict(zip(header, row, strict=True))
             record["Summary"] = unescape_text_field(record.get("Summary", ""))
             record["Description"] = unescape_text_field(record.get("Description", ""))
             yield record
