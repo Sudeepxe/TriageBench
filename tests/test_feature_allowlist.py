@@ -10,6 +10,7 @@ from triagebench.data.csv_parser import (
     EXPECTED_COLUMNS,
     FILING_TIME_FEATURE_ALLOWLIST,
     POST_HOC_FIELDS,
+    build_filing_time_features,
 )
 
 
@@ -37,17 +38,38 @@ def test_every_allowlisted_and_post_hoc_field_is_a_real_column():
     assert POST_HOC_FIELDS <= set(EXPECTED_COLUMNS)
 
 
-def build_feature_dict(row: dict) -> dict:
-    """Reference implementation of what any training/inference pipeline
-    must use to build model input. Import and reuse this in real pipeline
-    code rather than re-deriving the allowlist ad hoc, so this test stays
-    the single source of truth.
-    """
-    return {k: row.get(k, "") for k in FILING_TIME_FEATURE_ALLOWLIST}
-
-
-def test_build_feature_dict_excludes_post_hoc_fields():
+def test_build_filing_time_features_excludes_post_hoc_fields():
+    # This imports the actual production function from csv_parser.py (not
+    # a test-local reimplementation), so a future edit that weakens it in
+    # src/ is caught here directly rather than only in a parallel copy.
     row = {c: f"value-{c}" for c in EXPECTED_COLUMNS}
-    features = build_feature_dict(row)
+    features = build_filing_time_features(row)
     assert set(features.keys()) == {"Summary", "Description"}
     assert not (set(features.keys()) & POST_HOC_FIELDS)
+
+
+def test_build_filing_time_features_ignores_extra_keys_present_on_row():
+    # Regression test: even if a caller passes a full row dict with every
+    # post-hoc field still attached (Status, Resolution, History/Activity
+    # Log, ...), the returned features must never include their values --
+    # not even under an unexpected key.
+    row = {c: f"leaked-{c}" for c in EXPECTED_COLUMNS}
+    features = build_filing_time_features(row)
+    leaked_values = [v for v in features.values() if not v.startswith(("leaked-Summary", "leaked-Description"))]
+    assert leaked_values == []
+
+
+def test_row_to_text_in_baseline_model_only_uses_allowlisted_fields():
+    # End-to-end regression test at the actual model-input boundary: Arm
+    # 0's row_to_text() must produce text containing only Summary/
+    # Description content, even when given a row where every other field
+    # is populated with an easily-greppable sentinel value.
+    from triagebench.models.baseline import row_to_text
+
+    row = {c: f"LEAK_{c.upper().replace(' ', '_')}" for c in EXPECTED_COLUMNS}
+    text = row_to_text(row)
+    assert "LEAK_SUMMARY" in text
+    assert "LEAK_DESCRIPTION" in text
+    for field in POST_HOC_FIELDS:
+        sentinel = f"LEAK_{field.upper().replace(' ', '_')}"
+        assert sentinel not in text, f"post-hoc field {field!r} leaked into model input text"

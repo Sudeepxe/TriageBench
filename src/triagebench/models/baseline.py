@@ -10,10 +10,13 @@ their added complexity and cost.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+
+from triagebench.data.csv_parser import build_filing_time_features
 
 
 @dataclass
@@ -61,6 +64,15 @@ def combine_text(summary: str, description: str) -> str:
     identically -- see FILING_TIME_FEATURE_ALLOWLIST in csv_parser.py for
     why only these two fields are here."""
     return f"{summary}\n\n{description}"
+
+
+def row_to_text(row: dict[str, Any]) -> str:
+    """Build model input text directly from a parsed CSV row, routed
+    through build_filing_time_features() so the leakage allowlist is
+    enforced even if a future caller passes a full row dict (with every
+    post-hoc field still attached) instead of pre-extracted strings."""
+    features = build_filing_time_features(row)
+    return combine_text(features["Summary"], features["Description"])
 
 
 def train_baseline(texts: list[str], labels: list[str], config: BaselineConfig | None = None) -> Pipeline:

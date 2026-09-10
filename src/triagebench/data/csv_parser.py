@@ -62,6 +62,19 @@ PRODUCT_COLUMN = "Product"
 OS_PLATFORM_COLUMN = "Platform"  # unrelated to PRIMARY_PRODUCT; do not confuse
 
 
+def build_filing_time_features(row: dict[str, Any]) -> dict[str, str]:
+    """The single, canonical way to turn a parsed row into model input.
+
+    Every training/inference pipeline (baseline, encoder, LLM prompting,
+    LoRA) must build its input through this function rather than reading
+    row["Summary"]/row["Description"] ad hoc, so the leakage allowlist is
+    enforced by construction at one call site instead of by convention
+    across every script. tests/test_feature_allowlist.py imports this
+    exact function -- it is not a separate test-only reimplementation.
+    """
+    return {k: row.get(k, "") for k in FILING_TIME_FEATURE_ALLOWLIST}
+
+
 def raise_csv_field_size_limit(limit: int = 50_000_000) -> None:
     """Some Description/Comments/History fields exceed the csv module default."""
     csv.field_size_limit(limit)

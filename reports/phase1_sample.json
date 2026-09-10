@@ -176,7 +176,7 @@
     "filing_time_component_reconstruction_rate_pct": "NOT MEASURED (no product filter)",
     "filing_time_vs_current_component_matches": 71,
     "filing_time_vs_current_component_mismatches": 29,
-    "note": "post_filing_routing_label_instability_rate is the fraction of issues with at least one Component change event in the history log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md."
+    "note": "post_filing_routing_label_instability_rate is the fraction of issues with at least one Component change event in the history log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md. filing_time_component_reconstruction treats history_empty rows (no history record captured at all) the same as history_present rows with zero component-change events: both are inferred to have filing-time component == current component, since neither carries any positive evidence of a change. history_empty is reported separately above so this inference's weaker evidence base for those rows is never hidden."
   },
   "completeness": {}
 }

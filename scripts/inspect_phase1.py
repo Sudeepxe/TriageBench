@@ -172,7 +172,9 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
                 creation_year_counts[year] += 1
 
         raw_history = row.get("History/Activity Log", "")
-        if not raw_history or not raw_history.strip():
+        history_is_empty = not raw_history or not raw_history.strip()
+        events: list[dict] = []
+        if history_is_empty:
             history_empty += 1
         else:
             history_present += 1
@@ -181,20 +183,27 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
                 history_parse_failures += 1
             events = component_change_events(parsed)
             component_change_counts.append(len(events))
-            if events:
-                issues_with_component_change += 1
-                first_component = events[0]["removed"]
-                if first_component:
-                    filing_time_component_reconstructed += 1
-                    if first_component == component:
-                        filing_time_component_matches_current += 1
-                    else:
-                        filing_time_component_mismatches += 1
-            else:
-                # No component-change event recorded -> filing-time
-                # component is (as far as history shows) the current one.
+
+        # Reconstruction logic applies uniformly whether history was empty
+        # (no record captured at all) or present but with zero
+        # component-change events -- in both cases the strongest available
+        # evidence is "no change was ever recorded," so filing-time
+        # component is inferred to equal the current one. The two cases
+        # remain separately visible via history_empty/history_present so
+        # this inference's evidence base is never hidden (never silently
+        # convert a missing observation into an unqualified fact).
+        if events:
+            issues_with_component_change += 1
+            first_component = events[0]["removed"]
+            if first_component:
                 filing_time_component_reconstructed += 1
-                filing_time_component_matches_current += 1
+                if first_component == component:
+                    filing_time_component_matches_current += 1
+                else:
+                    filing_time_component_mismatches += 1
+        else:
+            filing_time_component_reconstructed += 1
+            filing_time_component_matches_current += 1
 
     report["schema"]["expected_columns"] = EXPECTED_COLUMNS
     report["schema"]["header_matched"] = True  # iter_rows raises otherwise
@@ -295,7 +304,14 @@ def run_inspection(input_path: Path, product_filter: str | None, stated_total: i
         "note": (
             "post_filing_routing_label_instability_rate is the fraction of "
             "issues with at least one Component change event in the history "
-            "log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md."
+            "log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md. "
+            "filing_time_component_reconstruction treats history_empty rows "
+            "(no history record captured at all) the same as history_present "
+            "rows with zero component-change events: both are inferred to have "
+            "filing-time component == current component, since neither carries "
+            "any positive evidence of a change. history_empty is reported "
+            "separately above so this inference's weaker evidence base for "
+            "those rows is never hidden."
         ),
     }
 
