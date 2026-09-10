@@ -77,6 +77,46 @@ def test_duplicate_group_never_split_across_train_val():
     assert not (in_train and in_val), "duplicate group split across train/val"
 
 
+def test_multiple_spanning_duplicate_groups_all_counted():
+    rows = []
+    for g in range(3):
+        rows.append(make_row(f"old{g}", f"dup{g}", f"deskdup{g}", "2015-01-01"))
+        rows.append(make_row(f"new{g}", f"dup{g}", f"deskdup{g}", "2020-01-01"))
+    rows += [make_row(f"filler{i}", f"s{i}", f"d{i}", "2015-01-01") for i in range(10)]
+    result = temporal_split(rows, boundary_date="2018-01-01", seed=0)
+    assert result.duplicate_groups_spanning_boundary == 3
+    # each pair must still land together on one side
+    for g in range(3):
+        train_val = set(result.train_ids) | set(result.val_ids)
+        shift = set(result.test_temporal_shift_ids)
+        pair = {f"old{g}", f"new{g}"}
+        assert (pair <= train_val) or (pair <= shift)
+
+
+def test_empty_rows_returns_empty_split_without_error():
+    result = temporal_split([], boundary_date="2018-01-01", seed=0)
+    assert result.train_ids == []
+    assert result.val_ids == []
+    assert result.test_temporal_shift_ids == []
+    assert result.duplicate_groups_spanning_boundary == 0
+
+
+def test_zero_val_fraction_puts_everything_in_train():
+    rows = [make_row(str(i), f"s{i}", f"d{i}", "2015-01-01") for i in range(20)]
+    result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.0, seed=0)
+    assert result.val_ids == []
+    assert len(result.train_ids) == 20
+
+
+def test_all_rows_are_one_duplicate_group_stays_together():
+    rows = [make_row(str(i), "identical", "identical", "2015-01-01") for i in range(10)]
+    result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.5, seed=0)
+    # the whole group of 10 must go entirely to train or entirely to val
+    assert len(result.val_ids) in (0, 10)
+    assert len(result.train_ids) in (0, 10)
+    assert len(result.val_ids) + len(result.train_ids) == 10
+
+
 def test_val_fraction_is_approximately_respected():
     rows = [make_row(str(i), f"s{i}", f"d{i}", "2015-01-01") for i in range(200)]
     result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.2, seed=0)
