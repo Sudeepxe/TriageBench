@@ -52,6 +52,16 @@ Every major run is recorded here, including failures. Chronological order.
   exponential backoff) and reduced the per-request chunk size from 64MB to
   12MB to lower the odds of hitting the server's apparent per-request
   timeout.
-- **Status**: re-validating on TPTP before committing to the ~24-minute,
-  ~8GB Platform run. Full Platform inspection numbers land in a follow-up
-  log entry once `reports/phase1_platform.json` exists.
+- **Status**: BLOCKED (external, not a code issue). While re-validating on
+  TPTP, request reliability degraded from "occasional transient 504,
+  succeeds on retry" to 100% failure on every request regardless of size
+  (a 1KB range, a 16MB range, and a plain unranged GET on `README.md` all
+  timed out identically at ~30s). Direct test of `https://zenodo.org`
+  itself (no range, no auth) also timed out completely, while
+  `https://github.com` responded in 0.26s from the same machine at the
+  same moment -- ruling out a local network issue. This is a live Zenodo
+  outage, not a bug in `HTTPRangeFile` or the sparse-container approach
+  (both had already been validated working end-to-end on the smaller
+  TPTP entry before the outage began). Full Platform inspection numbers
+  land in a follow-up log entry once Zenodo recovers and
+  `reports/phase1_platform.json` exists. **NOT MEASURED** until then.
