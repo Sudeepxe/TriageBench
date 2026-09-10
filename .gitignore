@@ -1,5 +1,6 @@
-# Data (never commit raw/processed dataset artifacts)
-data/
+# Data (never commit raw/processed dataset artifacts) -- top-level only,
+# so src/triagebench/data/ (source code) is not affected.
+/data/
 *.csv
 !tests/fixtures/**/*.csv
 
