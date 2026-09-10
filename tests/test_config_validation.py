@@ -10,6 +10,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATASET_CONFIG = REPO_ROOT / "configs" / "dataset.yaml"
+EXPERIMENTS_CONFIG = REPO_ROOT / "configs" / "experiments.yaml"
 
 
 @pytest.fixture(scope="module")
@@ -44,6 +45,20 @@ def test_csv_parsing_config_matches_parser_module(dataset_cfg):
     csv_cfg = dataset_cfg["csv_parsing"]
     assert csv_cfg["escapechar"] == ESCAPECHAR
     assert csv_cfg["encoding"] == ENCODING
+
+
+def test_temporal_split_boundary_is_frozen_and_unchanged():
+    # Guards against silently moving the split boundary after it was
+    # frozen from the real Phase 1 Platform measurement (see
+    # reports/phase1_platform.json and docs/EXPERIMENT_LOG.md). Changing
+    # this value requires a deliberate, documented decision -- never an
+    # incidental edit.
+    cfg = yaml.safe_load(EXPERIMENTS_CONFIG.read_text())
+    split = cfg["split"]
+    assert split["frozen"] is True
+    assert split["boundary_date"] == "2015-01-01T00:00:00Z"
+    assert split["strategy"] == "temporal_within_platform"
+    assert split["cross_product_transfer"] is False
 
 
 def test_invalid_config_missing_required_key_is_detectable():

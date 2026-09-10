@@ -65,3 +65,69 @@ Every major run is recorded here, including failures. Chronological order.
   TPTP entry before the outage began). Full Platform inspection numbers
   land in a follow-up log entry once Zenodo recovers and
   `reports/phase1_platform.json` exists. **NOT MEASURED** until then.
+
+## 2026-09-10 — EXP-002: Zenodo recovery, real Platform extraction and Phase 1 completion
+
+- **Purpose**: Complete the actual Phase 1 gate: extract Platform data,
+  verify integrity, run the full inspection, measure real statistics,
+  freeze the temporal split boundary.
+- **Result (Zenodo)**: Recovered (confirmed independently: HTTP 200 in
+  0.25s). Re-ran the Platform extraction at healthy throughput
+  (~6-8 MB/s, no retries needed) and it downloaded successfully to 100%
+  (8.06GB in 1373s) -- but then **7z failed** with "Can't open as
+  archive."
+- **Failure (root-caused, not worked around blindly)**: The sparse-file
+  reconstruction approach (preserve the target entry at its *original*
+  multi-GB absolute offset inside a sparse local file mirroring the
+  remote archive's layout) makes p7zip 17.05 fail outright when that
+  offset is large. Reproduced independently and precisely: a synthetic
+  sparse file with the same valid ZIP64 structure works fine with a
+  ~1KB leading gap (warning only) and completely fails with a ~9GB
+  leading gap ("Can't open as archive"), isolated from compression
+  method, ZIP64 usage, and trailing gaps (both tested separately and
+  found fine). This is very likely a 32-bit-scale overflow in p7zip
+  17.05's legacy SFX-offset-detection heuristic, never exercised at
+  multi-GB scale by its authors.
+- **Fix**: Replaced the sparse-preservation design with a *minimal*
+  single-entry container: the target entry's local header + data placed
+  at local offset 0, followed by a freshly-built (not reused/patched)
+  central directory record and ZIP64 EOCD/locator/classic-EOCD. No
+  leading gap exists at all, so the buggy code path is never triggered.
+  Validated against a real `7z` subprocess (not just Python zipfile) in
+  `tests/test_prepare_data_resume.py::test_minimal_container_is_actually_openable_by_real_7z`
+  before touching the real data again.
+- **Avoided a second ~23-minute re-download**: the already-downloaded
+  8.06GB of compressed data from the failed run was still on local disk
+  (in the old sparse container). Wrote a one-off local repackaging step
+  that read the local header + compressed data from that file (local
+  disk I/O only) and a fresh, small `info` object from 4 lightweight
+  remote metadata requests, and reassembled it directly into the new
+  minimal-container format -- zero bulk re-download.
+- **Second failure (found immediately after, same run)**: `inspect_phase1.py`
+  crashed on the real Platform CSV with `_csv.Error: field larger than
+  field limit (50000000)`. Root-caused (not just raised the limit
+  blindly): measured every column's max field size across all 122,496
+  rows and found `Attachments` at 406,417,641 bytes in one row (a large
+  binary attachment, almost certainly base64-embedded by Issuex).
+  `Attachments` is already excluded from model input
+  (`POST_HOC_FIELDS`); raised `DEFAULT_CSV_FIELD_SIZE_LIMIT` to 1GB (real
+  headroom above the measured max, not an arbitrary round number) and
+  added a regression test asserting that headroom explicitly.
+- **Integrity verification**: extracted CSV size (15,340,818,646 bytes)
+  matches the ZIP's own recorded uncompressed size exactly. `7z` also
+  reported no CRC errors.
+- **Result (Phase 1 measurements)**: See `docs/DATASET_CARD.md` for full
+  numbers. Headline findings: 122,496 rows (99.999% of the stated
+  122,497 -- effectively complete), 21 components (88.0% head-10 share),
+  17.81% label instability, 94.9% of issues in a terminal status
+  (RESOLVED/CLOSED/VERIFIED), data spans 2001-10-11 to 2022-04-12 (a
+  ~2.5-year gap before the 2024-11-27 publication date), 458
+  exact-duplicate text groups, one 406MB Attachments outlier.
+- **Decision**: Temporal split boundary frozen at `2015-01-01T00:00:00Z`
+  (84.81% / 15.19%, chosen from the year-level histogram alone, no
+  sub-year search performed to chase a closer match to the 85/15
+  target). Written to `configs/experiments.yaml` with `frozen: true` and
+  guarded by a test. Per instruction, **no advance to Phase 2** --
+  stopping here to report findings.
+- **Next action**: Await review of Phase 1 findings before any headroom
+  gate / Arm 0 work begins.

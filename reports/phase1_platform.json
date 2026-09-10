@@ -1,0 +1,235 @@
+{
+  "input_file": "data/raw/platform_full.csv",
+  "input_size_bytes": 15340818646,
+  "product_filter_applied": "Platform",
+  "schema": {
+    "expected_columns": [
+      "Issue URL",
+      "ID",
+      "Alias",
+      "Classification",
+      "Component",
+      "Product",
+      "Version",
+      "Platform",
+      "Op sys",
+      "Status",
+      "Resolution",
+      "Depends on",
+      "Dupe of",
+      "Blocks",
+      "Groups",
+      "Flags",
+      "Severity",
+      "Priority",
+      "Deadline",
+      "Target Milestone",
+      "Creator",
+      "Creator Detail",
+      "Creation time",
+      "Assigned to",
+      "Assigned to detail",
+      "CC",
+      "CC detail",
+      "Is CC accessible",
+      "Is confirmed",
+      "Is open",
+      "Is creator accessible",
+      "Summary",
+      "Description",
+      "URL",
+      "Whiteboard",
+      "Keywords",
+      "See also",
+      "Last change time",
+      "QA contact",
+      "History/Activity Log",
+      "Comments",
+      "Attachments"
+    ],
+    "header_matched": true
+  },
+  "rows": {
+    "total_rows_in_file": 122496,
+    "malformed_rows": 0,
+    "malformed_row_examples": [],
+    "scoped_rows_after_product_filter": 122496
+  },
+  "products": {
+    "counts": {
+      "Platform": 122496
+    },
+    "distinct_products": 1
+  },
+  "component_taxonomy": {
+    "distinct_components": 21,
+    "counts": {
+      "UI": 37307,
+      "SWT": 25495,
+      "Team": 7205,
+      "Debug": 6920,
+      "Releng": 6731,
+      "Resources": 5495,
+      "Text": 5126,
+      "User Assistance": 5023,
+      "IDE": 4415,
+      "Ant": 4129,
+      "CVS": 3301,
+      "Update  (deprecated - use Eclipse>Equinox>p2)": 3278,
+      "Runtime": 3122,
+      "Compare": 2075,
+      "Search": 1244,
+      "Doc": 1123,
+      "Website": 186,
+      "Scripting": 108,
+      "PMC": 106,
+      "WebDAV": 92,
+      "Incubator": 15
+    },
+    "head_10_share_pct": 88.04,
+    "classes_below_50_support": [
+      "Incubator"
+    ],
+    "classes_below_10_support": []
+  },
+  "status_distribution": {
+    "scoped": {
+      "RESOLVED": 74374,
+      "CLOSED": 22592,
+      "VERIFIED": 19223,
+      "NEW": 4788,
+      "ASSIGNED": 1153,
+      "REOPENED": 345,
+      "UNCONFIRMED": 21
+    },
+    "all_products": {
+      "RESOLVED": 74374,
+      "CLOSED": 22592,
+      "VERIFIED": 19223,
+      "NEW": 4788,
+      "ASSIGNED": 1153,
+      "REOPENED": 345,
+      "UNCONFIRMED": 21
+    }
+  },
+  "resolution_distribution": {
+    "scoped": {
+      "FIXED": 53880,
+      "WONTFIX": 22584,
+      "DUPLICATE": 19301,
+      "WORKSFORME": 10940,
+      "INVALID": 8040,
+      "": 6307,
+      "NOT_ECLIPSE": 1350,
+      "MOVED": 94
+    },
+    "all_products": {
+      "FIXED": 53880,
+      "WONTFIX": 22584,
+      "DUPLICATE": 19301,
+      "WORKSFORME": 10940,
+      "INVALID": 8040,
+      "": 6307,
+      "NOT_ECLIPSE": 1350,
+      "MOVED": 94
+    }
+  },
+  "creation_year_distribution": {
+    "2001": 3274,
+    "2002": 12048,
+    "2003": 10196,
+    "2004": 15264,
+    "2005": 12424,
+    "2006": 10653,
+    "2007": 8634,
+    "2008": 6799,
+    "2009": 5892,
+    "2010": 4411,
+    "2011": 3593,
+    "2012": 3980,
+    "2013": 3392,
+    "2014": 3331,
+    "2015": 3288,
+    "2016": 3350,
+    "2017": 2575,
+    "2018": 2498,
+    "2019": 2540,
+    "2020": 2380,
+    "2021": 1624,
+    "2022": 350
+  },
+  "text_length": {
+    "summary_chars": {
+      "count": 122495,
+      "min": 1,
+      "max": 255,
+      "mean": 56.47,
+      "median": 55,
+      "stdev": 21.35,
+      "p10": 32,
+      "p90": 83,
+      "p99": 117
+    },
+    "description_chars": {
+      "count": 119984,
+      "min": 1,
+      "max": 131234,
+      "mean": 1157.73,
+      "median": 441.0,
+      "stdev": 3169.31,
+      "p10": 136,
+      "p90": 2234,
+      "p99": 12998
+    }
+  },
+  "missing_fields": {
+    "missing_summary": 1,
+    "missing_summary_pct": 0.001,
+    "missing_description": 2512,
+    "missing_description_pct": 2.051,
+    "missing_component": 0,
+    "missing_creation_time": 0,
+    "id_parse_failures": 0
+  },
+  "duplicates": {
+    "duplicate_ids": 0,
+    "exact_duplicate_text_groups": 458,
+    "exact_duplicate_extra_rows": 594,
+    "id_range": {
+      "min": 1,
+      "max": 579680
+    }
+  },
+  "history": {
+    "history_present": 122496,
+    "history_empty": 0,
+    "history_parse_failures": 0,
+    "issues_with_component_change": 21815,
+    "post_filing_routing_label_instability_rate_pct": 17.809,
+    "component_change_count_distribution": {
+      "0": 100681,
+      "1": 17615,
+      "2": 3233,
+      "3": 730,
+      "4": 161,
+      "5": 53,
+      "6": 12,
+      "7": 9,
+      "8": 2
+    },
+    "filing_time_component_reconstructed": 122496,
+    "filing_time_component_reconstruction_rate_pct": 100.0,
+    "filing_time_vs_current_component_matches": 103440,
+    "filing_time_vs_current_component_mismatches": 19056,
+    "note": "post_filing_routing_label_instability_rate is the fraction of issues with at least one Component change event in the history log. This is NOT a human-accuracy ceiling -- see docs/METHODOLOGY.md. filing_time_component_reconstruction treats history_empty rows (no history record captured at all) the same as history_present rows with zero component-change events: both are inferred to have filing-time component == current component, since neither carries any positive evidence of a change. history_empty is reported separately above so this inference's weaker evidence base for those rows is never hidden."
+  },
+  "completeness": {
+    "product_filter": "Platform",
+    "measured_row_count": 122496,
+    "stated_upstream_count": 122497,
+    "gap": 1,
+    "gap_pct": 0.001,
+    "note": "Compares measured row count against the upstream-stated count from configs/dataset.yaml. A material gap must be documented, not silently treated as a complete census."
+  },
+  "status": "MEASURED"
+}

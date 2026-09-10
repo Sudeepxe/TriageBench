@@ -5,9 +5,18 @@
 split:
   strategy: "temporal_within_platform"
   cross_product_transfer: false
-  boundary_date: null  # set once the real Creation-time year histogram is measured
+  # Frozen 2026-09-10 from the real Creation-time distribution in
+  # reports/phase1_platform.json (122,496 Platform rows, span
+  # 2001-10-11 to 2022-04-12). Chosen as a clean calendar-year boundary
+  # whose measured split ratio (84.81% / 15.19%) already lands almost
+  # exactly on the pre-registered 85/15 target -- no finer-grained
+  # (sub-year) search was performed to chase a closer match, to avoid
+  # even the appearance of tuning the boundary to a desired number.
+  # This value must NOT be changed based on any model result.
+  boundary_date: "2015-01-01T00:00:00Z"
+  measured_split_pct: {older_era: 84.81, recent_era: 15.19}
   target_ratio: {older_era: 0.85, recent_era: 0.15}
-  frozen: false
+  frozen: true
 
 long_tail_policy:
   minimum_support_threshold: null  # pre-registered before model results, from reports/class_filtering.json
