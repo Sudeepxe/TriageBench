@@ -1,0 +1,33 @@
+# Hardware environments used for benchmarking. Filled in with exact specs
+# as each environment is actually used (see docs/EXPERIMENT_LOG.md).
+
+environments:
+  mac_m5:
+    label: "Environment A — Apple Silicon (local)"
+    device: "MacBook Pro"
+    chip: "Apple M5"
+    cpu_cores: 10
+    performance_cores: 4
+    efficiency_cores: 6
+    memory_gb: 16
+    memory_type: "LPDDR5 (unified)"
+    gpu: "Apple integrated GPU"
+    cuda: false
+    arch: "arm64"
+    notes: >
+      Used for development, data inspection, classical ML, preprocessing,
+      prompt development, small local inference, and local latency
+      benchmarks. No CUDA available; MPS/CPU only.
+
+  cloud_nvidia:
+    label: "Environment B — Cloud NVIDIA"
+    provider: "NOT MEASURED"  # filled in when a cloud GPU is actually rented
+    gpu: "NOT MEASURED"
+    vram_gb: null
+    cuda_version: "NOT MEASURED"
+    framework_versions: "NOT MEASURED"
+    notes: >
+      Used only where Apple Silicon/MPS is unsuitable (Arm 1 encoder full
+      training, Arm 4 LoRA/QLoRA). Selected as the cheapest GPU with
+      sufficient VRAM for the job at hand; cost/runtime estimated before
+      each run and recorded actual after (see docs/EXPERIMENT_LOG.md).

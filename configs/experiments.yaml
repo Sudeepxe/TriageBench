@@ -1,0 +1,27 @@
+# Experiment-wide configuration. The temporal split boundary and long-tail
+# policy are filled in and frozen only after reports/phase1_platform.json
+# exists — never chosen after seeing model results (see docs/DESIGN_DECISIONS.md).
+
+split:
+  strategy: "temporal_within_platform"
+  cross_product_transfer: false
+  boundary_date: null  # set once the real Creation-time year histogram is measured
+  target_ratio: {older_era: 0.85, recent_era: 0.15}
+  frozen: false
+
+long_tail_policy:
+  minimum_support_threshold: null  # pre-registered before model results, from reports/class_filtering.json
+  rare_class_treatment: null       # "exclude" | "other_bucket" | "keep"
+  decided: false
+
+data_efficiency_regimes:
+  - {examples_per_class: 50}
+  - {examples_per_class: 200}
+  - {examples_per_class: 1000}
+  - {examples_per_class: "full"}
+
+seeds: [0, 1, 2]
+
+statistics:
+  bootstrap_resamples: 1000
+  confidence_level: 0.95

@@ -1,0 +1,35 @@
+# Model arms for TriageBench V1.0. Concrete model choices (checkpoints,
+# revisions) are filled in and frozen as each arm is implemented (Phases
+# 2-7), never chosen after seeing test-set results.
+
+arms:
+  arm0_classical:
+    name: "TF-IDF + Logistic Regression"
+    status: "not started"
+
+  arm1_encoder:
+    name: "Encoder fine-tune"
+    candidates: ["ModernBERT-base", "DeBERTa-v3-base"]
+    selection_criteria: ["license", "architecture", "Apple/CUDA compatibility", "memory footprint", "reproducibility"]
+    status: "not started"
+
+  arm2_llm_base:
+    name: "Small LLM base (frozen, no fine-tuning)"
+    size_range: "1B-3B parameters"
+    status: "not started"
+
+  arm3_llm_prompted:
+    name: "Prompted small LLM (same base model as Arm 2)"
+    status: "not started"
+    note: "Prompt frozen before test-set evaluation; no test-set tuning."
+
+  arm4_lora:
+    name: "LoRA/QLoRA fine-tuned small LLM (same base model as Arm 2)"
+    status: "not started"
+
+  arm5_frontier:
+    name: "Frontier API reference"
+    provider: "configurable via .env FRONTIER_PROVIDER/FRONTIER_MODEL"
+    subset_size: "150-200 examples (paired across all arms)"
+    status: "not started"
+    caveat: "Potentially-contaminated reference / upper bound, not a clean benchmark."

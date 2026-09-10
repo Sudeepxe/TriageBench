@@ -1,0 +1,78 @@
+# TriageBench dataset pin
+#
+# This is the SINGLE authoritative upstream source for V1.0.
+# Do not mix with any other Zenodo record, DOI, or extractor run.
+# Verified against the live Zenodo record on 2026-09-10.
+
+dataset:
+  name: "Eclipse Issue Report Dataset"
+  authors:
+    - "López Durán, Noelia (Universidad de Sevilla)"
+  extractor: "Issuex"
+
+  # Concept DOI resolves to the latest version; we pin the exact
+  # versioned record below, not the concept DOI, so the artifact
+  # never silently changes under us.
+  concept_doi: "10.5281/zenodo.15348468"
+  version: "v1.0.1"
+  published: "2024-11-27"
+  license: "CC-BY-SA-4.0"
+  license_url: "https://creativecommons.org/licenses/by-sa/4.0/"
+  record_url: "https://zenodo.org/doi/10.5281/zenodo.15348468"
+
+  # Stated upstream scope (from the Zenodo description). This is a claim,
+  # not a measurement -- Phase 1 inspection must independently verify the
+  # Platform-product row counts and completeness.
+  stated_projects:
+    - Platform
+    - JDT
+    - CDT
+    - BIRT
+    - PDE
+    - Equinox
+    - Mylyn
+    - TPTP
+    - Papyrus
+  stated_total_issues_combined: 302000  # approximate, from upstream description
+
+  files:
+    sample:
+      filename: "sample_data.csv"
+      size_bytes: 2900000  # ~2.9 MB, upstream-reported
+      md5: "d6ec742ed9e97a9e63acffbb54257d5c"
+    full_archive:
+      filename: "Eclipse_dataset.zip"
+      size_bytes: 17200000000  # ~17.2 GB, upstream-reported
+      md5: "19494c20f33d5b4d4de2cc98d79fe84d"
+    readme:
+      filename: "README.md"
+      size_bytes: 2600
+      md5: "91348fc06575d922844b61c3eda35fe4"
+
+# Product/task scope for this project (not an upstream property)
+scope:
+  primary_product: "Platform"
+  primary_task: "single_label_component_classification"
+  target: "current_settled_component"  # see docs/METHODOLOGY.md for definition
+  cross_product_transfer: false  # removed from V1.0
+
+# CSV parsing quirks (see docs/METHODOLOGY.md and scripts/inspect_phase1.py)
+csv_parsing:
+  encoding: "utf-8"
+  escapechar: "\\"
+  quotechar: '"'
+  notes: >
+    The Issuex extractor uses a non-default escape character ("\").
+    A naive pandas.read_csv() without escapechar="\\" can misparse rows
+    containing embedded quotes/newlines in free-text fields (Summary,
+    Description, comments). This must be validated with unit tests before
+    any measurement is trusted.
+
+download:
+  workflow: >
+    1) download+validate sample_data.csv (checksum + schema) via
+       `make inspect-sample`; 2) only after it passes, download the full
+       archive via `make inspect-full`. Never fetch the 17GB archive first.
+  local_paths:
+    sample_csv: "data/raw/sample_data.csv"
+    full_archive: "data/raw/Eclipse_dataset.zip"
