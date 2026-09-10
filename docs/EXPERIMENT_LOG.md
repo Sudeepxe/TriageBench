@@ -240,3 +240,89 @@ Every major run is recorded here, including failures. Chronological order.
 - **Next action**: Arm 1 (encoder fine-tune, ModernBERT-base) -- pilot
   the smallest regime first to measure real MPS throughput before
   committing to the full-data regime.
+
+## 2026-09-10 — EXP-004: Arm 1 MPS pilot -- apparent hang, corrected diagnosis, move to CUDA
+
+- **Purpose**: Pilot Arm 1 (`answerdotai/ModernBERT-base`) on the
+  smallest regime (50/class, 985 examples) on Apple M5/MPS before
+  committing to the full 4-regime x 3-seed sweep.
+- **Two real bugs found and fixed before the pilot could even start**:
+  (1) `TrainingArguments(use_mps_device=...)` -- removed in the
+  installed transformers version (5.17.0); MPS is now auto-detected.
+  (2) `RuntimeError: stack expects each tensor to be equal size` on the
+  first batch -- the custom `TextClassificationDataset` tokenizes
+  without padding, and `Trainer`'s default collator doesn't pad. Fixed
+  by passing `DataCollatorWithPadding(tokenizer)` to `Trainer`. Neither
+  bug is specific to the real dataset; both would have been caught
+  instantly by a synthetic-data smoke test, which didn't exist yet --
+  added retroactively (see Correction below).
+- **Apparent hang**: after the fixes, the pilot ran for ~58 minutes with
+  no visible output. Non-destructive diagnosis (process inspection,
+  `lsof`, a 2-second `sample` stack trace) showed: PID alive, only ~69s
+  of CPU time accumulated over 58 minutes wall-clock (~2% utilization),
+  9.7GB physical footprint plateaued at its peak, main thread blocked in
+  `torch::autograd::THPVariable_cpu` -> `MPSStream::synchronize` ->
+  `-[_MTLCommandBuffer waitUntilCompleted]`, and a separate Metal
+  command-queue thread actively submitting GPU commands. This was
+  reported as "pathologically slow, working hypothesis: MPS/ModernBERT
+  incompatibility -- not confirmed" and the process was terminated via
+  SIGTERM on instruction (PID 11467; its parent `uv` process 11465 also
+  exited; no other process touched).
+- **Correction to the diagnosis, made immediately upon new evidence**:
+  killing the process via SIGTERM allowed its `tail`-piped, previously
+  block-buffered stdout to flush before exit -- and that output revealed
+  the run had **not** actually hung. It had completed training (3
+  epochs, 186 steps, `train_runtime=1401s`, `train_loss=2.462`) and the
+  `test_in_distribution` evaluation (`primary_macro_f1=0.1805`), and was
+  midway through the `test_temporal_shift` evaluation when killed. The
+  2-second stack sample had simply caught it mid-step during a real,
+  if very slow, synchronous MPS wait -- not a deadlock. **The MPS-hang
+  hypothesis from the initial diagnosis is retracted**; it does not
+  match the completed-run evidence and should not be treated as
+  established. Root cause for *why* it's this slow remains an open,
+  unconfirmed hypothesis (possibly a CPU-fallback path for some
+  ModernBERT-specific op, possibly generic MPS overhead for this
+  architecture) -- not investigated further, since the practical
+  conclusion (too slow to be worth debugging in place) is the same
+  either way.
+  - Measured throughput: training 2.11 samples/sec (7.53s/it at
+    batch=16); eval ~42.6 samples/sec. Extrapolated training time alone
+    (ignoring eval overhead) at this rate: 200/class ~27min,
+    1000/class ~2.1hr, full (72,736 examples) **~28.7 hours per seed**
+    -- impractical for a 4-regime x 3-seed sweep regardless of whether
+    the process was "hung" or merely this slow.
+  - The printed 0.1805 test_in_distribution figure is **not** an
+    official result: the run was interrupted before writing its result
+    JSON (no `hyperparameters`/`config` metadata block was ever
+    assembled), so it is recorded here only as diagnostic context, not
+    as a comparable Arm 1 data point. `reports/results/arm1/` remains
+    empty.
+  - Evidence preserved: `reports/results/arm1_mps_pilot_failure/`
+    (stack sample, final `ps` snapshot, full interrupted-run stdout).
+- **Correction applied**:
+  1. Removed the per-epoch validation eval (`eval_strategy="no"`) --
+     unnecessary recurring cost with no early-stopping/checkpoint
+     logic depending on it.
+  2. Added `get_device(override=...)`, `configure_determinism()`
+     (`cudnn.deterministic=True`, `cudnn.benchmark=False` on CUDA), and
+     `describe_hardware()` (records exact GPU name/VRAM/CUDA version so
+     M5 and NVIDIA numbers are never treated as directly comparable) to
+     `scripts/train_encoder.py`.
+  3. Added `tests/test_encoder_training_smoke.py`: a fast (~3s),
+     network-free forward+backward pass test using a tiny randomly
+     initialized BERT (not real ModernBERT weights) that exercises the
+     exact padding/collation/device-placement path -- this specific
+     test would have caught bug (2) above in milliseconds. Includes a
+     CUDA variant (skipped here, no CUDA on this machine) that must
+     pass before any cloud GPU run is launched.
+  4. Decision: move Arm 1 fine-tuning to a rented CUDA GPU. M5 remains
+     the local development/inference-benchmarking environment; its
+     numbers are never compared directly against NVIDIA timings.
+- **Tests**: 98 passed, 1 skipped (the CUDA smoke test, no CUDA here),
+  lint clean.
+- **Next action**: awaiting review before provisioning cloud GPU (see
+  chat for the recommended provider/GPU/cost estimate). Plan: run the
+  CUDA smoke test on the rented instance first, then a short timed pilot
+  (single seed, 50/class) to measure real throughput empirically before
+  committing to the full 4-regime x 3-seed sweep -- not assuming a
+  throughput number.

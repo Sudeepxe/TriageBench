@@ -30,6 +30,7 @@ from torch.utils.data import Dataset  # noqa: E402
 from transformers import (  # noqa: E402
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    DataCollatorWithPadding,
     Trainer,
     TrainingArguments,
 )
@@ -68,12 +69,38 @@ class TextClassificationDataset(Dataset):
         return item
 
 
-def get_device() -> str:
+def get_device(override: str | None = None) -> str:
+    if override:
+        if override == "cuda" and not torch.cuda.is_available():
+            raise RuntimeError("--device cuda requested but torch.cuda.is_available() is False")
+        if override == "mps" and not torch.backends.mps.is_available():
+            raise RuntimeError("--device mps requested but torch.backends.mps.is_available() is False")
+        return override
     if torch.backends.mps.is_available():
         return "mps"
     if torch.cuda.is_available():
         return "cuda"
     return "cpu"
+
+
+def configure_determinism(seed: int, device: str) -> None:
+    """Best-effort determinism. CUDA determinism additionally requires
+    disabling cuDNN's autotuned/non-deterministic kernels -- without this,
+    two runs with the same seed can still diverge slightly on GPU."""
+    torch.manual_seed(seed)
+    if device == "cuda":
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+
+def describe_hardware(device: str) -> str:
+    base = platform.platform()
+    if device == "cuda" and torch.cuda.is_available():
+        name = torch.cuda.get_device_name(0)
+        vram_gb = torch.cuda.get_device_properties(0).total_memory / 1e9
+        return f"{base} device=cuda ({name}, {vram_gb:.1f}GB VRAM, CUDA {torch.version.cuda})"
+    return f"{base} device={device}"
 
 
 def predict_labels(model, tokenizer, texts: list[str], device: str, batch_size: int = 32) -> list[str]:
@@ -161,7 +188,8 @@ def evaluate_split(model, tokenizer, ids: list[str], rows: dict, device: str, bo
 
 
 def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, splits, exp_cfg) -> dict:
-    device = get_device()
+    device = get_device(args.device)
+    configure_determinism(seed, device)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     train_ids_all = splits["train_ids"]
@@ -174,7 +202,6 @@ def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, s
     train_texts, train_labels = texts_and_labels(train_ids, rows, combine_text)
     val_texts, val_labels = texts_and_labels(splits["val_ids"], rows, combine_text)
 
-    torch.manual_seed(seed)
     model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_NAME, num_labels=len(LABELS), id2label=ID_TO_LABEL, label2id=LABEL_TO_ID
     ).to(device)
@@ -189,12 +216,16 @@ def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, s
         per_device_eval_batch_size=args.batch_size,
         num_train_epochs=args.epochs,
         learning_rate=args.learning_rate,
-        eval_strategy="epoch",
+        # No per-epoch eval on the 15,585-row val set: there is no early
+        # stopping/checkpoint-selection to justify that recurring cost --
+        # validation is used once, exactly like Arm 0's pilot, not
+        # monitored epoch-by-epoch. This was needless overhead in the
+        # interrupted MPS pilot (docs/EXPERIMENT_LOG.md EXP-004).
+        eval_strategy="no",
         save_strategy="no",
         logging_steps=50,
         seed=seed,
         report_to=[],
-        use_mps_device=(device == "mps"),
     )
 
     def compute_metrics(eval_pred):
@@ -210,6 +241,7 @@ def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, s
         train_dataset=train_ds,
         eval_dataset=val_ds,
         compute_metrics=compute_metrics,
+        data_collator=DataCollatorWithPadding(tokenizer),
     )
 
     t0 = time.time()
@@ -256,7 +288,7 @@ def run_one(regime_label: str, n_per_class: int | None, seed: int, args, rows, s
         "test_in_distribution": test_id_eval,
         "test_temporal_shift": test_shift_eval,
         "latency": latency,
-        "hardware": f"{platform.platform()} device={device}",
+        "hardware": describe_hardware(device),
         "bootstrap_resamples": args.bootstrap_resamples,
     }
 
@@ -274,12 +306,16 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=3)
     ap.add_argument("--learning-rate", type=float, default=2e-5)
     ap.add_argument("--bootstrap-resamples", type=int, default=None)
+    ap.add_argument(
+        "--device", default=None, choices=["cuda", "mps", "cpu"],
+        help="force a specific device instead of auto-detecting (mps > cuda > cpu).",
+    )
     args = ap.parse_args()
 
     exp_cfg = yaml.safe_load(args.experiments_config.read_text())
     args.bootstrap_resamples = args.bootstrap_resamples or exp_cfg["statistics"]["bootstrap_resamples"]
 
-    print(f"Device: {get_device()}")
+    print(f"Device: {get_device(args.device)}")
     print("Loading model-ready data and frozen splits...")
     rows = load_model_ready(args.model_ready)
     splits = load_splits(args.splits)

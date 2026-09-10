@@ -1,0 +1,3 @@
+  PID  PPID  %CPU %MEM  ELAPSED STAT STARTED                         RSS COMMAND
+11465 11460   0.0  0.0 01:05:35 S    Thu Sep 10 18:35:07 2026       1648 uv run python scripts/train_encoder.py --regime 50 --seeds 0 --epochs 3
+11467 11465   2.0  0.7 01:05:35 U    Thu Sep 10 18:35:07 2026     118352 /opt/homebrew/Cellar/python@3.12/3.12.13_4/Frameworks/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python scripts/train_encoder.py --regime 50 --seeds 0 --epochs 3

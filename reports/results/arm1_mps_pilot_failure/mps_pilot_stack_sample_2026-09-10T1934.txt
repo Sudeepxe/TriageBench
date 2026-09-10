@@ -1,0 +1,82 @@
+Analysis of sampling Python (pid 11467) every 1 millisecond
+Process:         Python [11467]
+Path:            /opt/homebrew/*/Python.framework/Versions/3.12/Resources/Python.app/Contents/MacOS/Python
+Load Address:    0x10025c000
+Identifier:      org.python.python
+Version:         3.12.13 (3.12.13)
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  uv [11465]
+Target Type:     live task (Roots Present)
+
+Date/Time:       2026-09-10 19:34:08.175 +0100
+Launch Time:     2026-09-10 18:35:07.842 +0100
+OS Version:      macOS 27.0 (26A428)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         9.7G
+Physical footprint (peak):  9.7G
+Idle exit:                  untracked
+----
+
+Call graph:
+    1692 Thread_256213: Main Thread   DispatchQueue_<multiple>
+    + 1692 start  (in dyld) + 6688  [0x19bc2be80]
+    +   1692 Py_BytesMain  (in Python) + 44  [0x100d0a0c0]
+    +     1692 pymain_main  (in Python) + 304  [0x100d0a01c]
+    +       1692 Py_RunMain  (in Python) + 852  [0x100d09bb4]
+    +         1692 pymain_run_file  (in Python) + 72  [0x100d0a5d8]
+    +           1692 pymain_run_file_obj  (in Python) + 164  [0x100d0a864]
+    +             1692 _PyRun_AnyFileObject  (in Python) + 80  [0x100ce4a2c]
+    +               1692 _PyRun_SimpleFileObject  (in Python) + 288  [0x100ce4e34]
+    +                 1692 pyrun_file  (in Python) + 156  [0x100ce5ac0]
+    +                   1692 run_mod  (in Python) + 132  [0x100ce664c]
+    +                     1692 run_eval_code_obj  (in Python) + 88  [0x100ce8564]
+    +                       1692 PyEval_EvalCode  (in Python) + 184  [0x100c87a98]
+    +                         1681 _PyEval_EvalFrameDefault  (in Python) + 38756  [0x100c91464]
+    +                         ! 1666 PyObject_Vectorcall  (in Python) + 88  [0x100b9e228]
+    +                         ! : 1666 method_vectorcall_VARARGS_KEYWORDS  (in Python) + 148  [0x100ba93f4]
+    +                         ! :   1664 torch::autograd::THPVariable_cpu(_object*, _object*, _object*)  (in libtorch_python.dylib) + 268  [0x108147770]
+    +                         ! :   | 1664 torch::autograd::dispatch_to(at::Tensor const&, c10::Device, bool, bool, std::optional<c10::MemoryFormat>)  (in libtorch_python.dylib) + 152  [0x1081e7328]
+    +                         ! :   |   1664 at::_ops::to_dtype_layout::call(at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 352  [0x121b5bc98]
+    +                         ! :   |     1664 at::_ops::_to_copy::call(at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 340  [0x1219b2370]
+    +                         ! :   |       1664 c10::impl::wrap_kernel_functor_unboxed_<c10::impl::detail::WrapFunctionIntoFunctor_<c10::CompileTimeFunctionPointer<at::Tensor (c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>), &torch::autograd::VariableType::(anonymous namespace)::_to_copy(c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)>, at::Tensor, c10::guts::typelist::typelist<c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>>>, at::Tensor (c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)>::call(c10::OperatorKernel*, c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 548  [0x123edb9ac]
+    +                         ! :   |         1664 at::_ops::_to_copy::redispatch(c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 172  [0x1219b3198]
+    +                         ! :   |           1664 at::_ops::_to_copy::redispatch(c10::DispatchKeySet, at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 172  [0x1219b3198]
+    +                         ! :   |             1664 at::native::_to_copy(at::Tensor const&, std::optional<c10::ScalarType>, std::optional<c10::Layout>, std::optional<c10::Device>, std::optional<bool>, bool, std::optional<c10::MemoryFormat>)  (in libtorch_cpu.dylib) + 1428  [0x121521df0]
+    +                         ! :   |               1664 at::_ops::copy_::call(at::Tensor&, at::Tensor const&, bool)  (in libtorch_cpu.dylib) + 308  [0x121e31f04]
+    +                         ! :   |                 1664 at::native::copy_(at::Tensor&, at::Tensor const&, bool)  (in libtorch_cpu.dylib) + 1652  [0x121253c3c]
+    +                         ! :   |                   1664 at::native::mps::mps_copy_(at::Tensor&, at::Tensor const&, bool)  (in libtorch_cpu.dylib) + 3508  [0x125849eb8]
+    +                         ! :   |                     1664 at::mps::MPSStream::copy_and_sync(id<MTLBuffer>, objc_object<MTLBuffer>, unsigned long, unsigned long, unsigned long, bool, unsigned long long)  (in libtorch_cpu.dylib) + 104  [0x1257fa1cc]
+    +                         ! :   |                       1664 at::mps::dispatch_sync_with_rethrow(NSObject<OS_dispatch_queue>*, void () block_pointer)  (in libtorch_cpu.dylib) + 124  [0x1257f9f74]
+    +                         ! :   |                         1664 _dispatch_lane_barrier_sync_invoke_and_complete  (in libdispatch.dylib) + 56  [0x19be50490]
+    +                         ! :   |                           1664 _dispatch_client_callout  (in libdispatch.dylib) + 16  [0x19be5a5a0]
+    +                         ! :   |                             1664 invocation function for block in at::mps::dispatch_sync_with_rethrow(NSObject<OS_dispatch_queue>*, void () block_pointer)  (in libtorch_cpu.dylib) + 32  [0x1257fac88]
+    +                         ! :   |                               1664 invocation function for block in at::mps::MPSStream::copy(id<MTLBuffer>, objc_object<MTLBuffer>, unsigned long, unsigned long, unsigned long, unsigned long long, at::mps::SyncType)  (in libtorch_cpu.dylib) + 216  [0x1257fa0dc]
+    +                         ! :   |                                 1664 at::mps::MPSStream::synchronize(at::mps::SyncType)  (in libtorch_cpu.dylib) + 120  [0x1257f9a80]
+    +                         ! :   |                                   1664 -[_MTLCommandBuffer waitUntilCompleted]  (in Metal) + 80  [0x1a8cd9c4c]
+    +                         ! :   |                                     1664 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x19c0021d0]
+    +                         ! :   |                                       1664 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x19bfc050c]
+
+=== Metal command queue thread (excerpt) ===
+    927 Thread_<multiple>   DispatchQueue_74: com.Metal.CommandQueueDispatch  (serial)
+      927 start_wqthread  (in libsystem_pthread.dylib) + 8  [0x19bffcce0]
+        927 _pthread_wqthread  (in libsystem_pthread.dylib) + 292  [0x19bffdf9c]
+          927 _dispatch_workloop_worker_thread  (in libdispatch.dylib) + 720  [0x19be5385c]
+            927 _dispatch_root_queue_drain_deferred_wlh  (in libdispatch.dylib) + 284  [0x19be53f58]
+              927 _dispatch_lane_invoke  (in libdispatch.dylib) + 392  [0x19be49abc]
+                927 _dispatch_lane_serial_drain  (in libdispatch.dylib) + 332  [0x19be48e24]
+                  927 _dispatch_source_invoke  (in libdispatch.dylib) + 848  [0x19be56f7c]
+                    927 _dispatch_source_latch_and_call  (in libdispatch.dylib) + 392  [0x19be582a8]
+                      927 _dispatch_continuation_pop  (in libdispatch.dylib) + 596  [0x19be451b4]
+                        927 _dispatch_client_callout  (in libdispatch.dylib) + 16  [0x19be5a5a0]
+                          927 -[_MTLCommandQueue _submitAvailableCommandBuffers]  (in Metal) + 544  [0x1a8cd5758]
+                            927 -[IOGPUMetalCommandQueue submitCommandBuffers:count:]  (in IOGPU) + 72  [0x1c36e1e50]
+                              927 -[IOGPUMetalCommandQueue _submitCommandBuffers:count:]  (in IOGPU) + 380  [0x1c36e1ff4]
+                                927 IOGPUCommandQueueSubmitCommandBuffers  (in IOGPU) + 184  [0x1c36fa000]
+                                  927 iokit_user_client_trap  (in IOKit) + 8  [0x1a04fccc0]
+
+Total number in stack (recursive counted multiple, when >=5):
+        33       _RINvNvNtNtCsez2iEa4lQFg_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB8_3vec13DrainProducerNtNtCs7UK4ck4gvNq_10tokenizers9tokenizer11EncodeInputEINtNtB6_3map11MapConsumerIB2x_INtNtB6_10while_some17WhileSomeConsumerNtNtB6_6extend15ListVecConsumerENCINvNvXs2_NtB8_6resultINtNtCslWxY2MhVcag_4core6result6ResultppEINtB6_20FromParallelIteratorIB4x_ppEE13from_par_iter2okNtNtB1G_8encoding8EncodingINtNtCs6KVRSXc8uZF_5alloc5boxed3BoxDNtNtB4B_5error5ErrorNtNtB4B_6marker4SyncNtB7q_4SendEL_EE0ENCINvMsp_B1G_INtB1G_13TokenizerImplNtNtCsalftcDWSQr4_10tokenizers6models7PyModelNtNtB8D_11normalizers12PyNormalizerNtNtB8D_14pre_tokenizers14PyPreTokenizerNtNtB8D_10processors15PyPostProcessorNtNtB8D_8decoders9PyDecoderE25encode_batch_char_offsetsB1E_E0EEB8D_  (in tokenizers.abi3.so) + 376  [0x10d3e6fe4]
+        32       _RINvNtCslhNwF68bWF4_10rayon_core8registry9in_workerNCINvNtB4_4join12join_contextNCINvNvNtNtCsez2iEa4lQFg_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1r_3vec13DrainProducerNtNtCs7UK4ck4gvNq_10tokenizers9tokenizer11EncodeInputEINtNtB1p_3map11MapConsumerIB3R_INtNtB1p_10while_some17WhileSomeConsumerNtNtB1p_6extend15ListVecConsumerENCINvNvXs2_NtB1r_6resultINtNtCslWxY2MhVcag_4core6result6ResultppEINtB1p_20FromParallelIteratorIB5V_ppEE13from_par_iter2okNtNtB30_8encoding8EncodingINtNtCs6KVRSXc8uZF_5alloc5boxed3BoxDNtNtB5Z_5error5ErrorNtNtB5Z_6marker4SyncNtB8P_4SendEL_EE0ENCINvMsp_B30_INtB30_13TokenizerImplNtNtCsalftcDWSQr4_10tokenizers6models7PyModelNtNtBa2_11normalizers12PyNormalizerNtNtBa2_14pre_tokenizers14PyPreTokenizerNtNtBa2_10processors15PyPostProcessorNtNtBa2_8decoders9PyDecoderE25encode_batch_char_offsetsB2Y_E0EE0NCB1i_s_0INtNtNtB7Y_11collections11linked_list10LinkedListINtNtB7Y_3vec3VecB7t_EEBdG_E0TBdG_BdG_EEBa2_  (in tokenizers.abi3.so) + 140  [0x10d37d42c]
