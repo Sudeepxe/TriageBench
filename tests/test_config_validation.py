@@ -47,6 +47,14 @@ def test_csv_parsing_config_matches_parser_module(dataset_cfg):
     assert csv_cfg["encoding"] == ENCODING
 
 
+def test_older_era_split_fractions_are_frozen_and_sum_to_one():
+    cfg = yaml.safe_load(EXPERIMENTS_CONFIG.read_text())
+    fractions = cfg["split"]["older_era_fractions"]
+    assert fractions == {"train": 0.70, "val": 0.15, "test_in_distribution": 0.15}
+    assert abs(sum(fractions.values()) - 1.0) < 1e-9
+    assert cfg["split"]["split_seed"] == 0
+
+
 def test_long_tail_policy_config_matches_the_frozen_code_policy():
     # configs/experiments.yaml is documentation-facing; the enforced
     # policy lives in code (long_tail_policy.py). This guards them from

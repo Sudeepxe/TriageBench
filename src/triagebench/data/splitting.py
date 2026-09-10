@@ -43,20 +43,26 @@ def temporal_split(
     rows: list[dict],
     boundary_date: str,
     val_fraction_of_older: float = 0.15,
+    test_fraction_of_older: float = 0.15,
     text_fields: tuple[str, ...] = ("Summary", "Description"),
     seed: int = 0,
 ) -> SplitResult:
-    """Split rows into train/val (older era, before `boundary_date`) and
-    test-temporal-shift (on/after `boundary_date`).
+    """Split rows into train/val/test-in-distribution (all from the older
+    era, before `boundary_date`) and test-temporal-shift (on/after
+    `boundary_date`, i.e. the entire recent era).
 
     Built as a group-first assignment rather than per-row assignment with
     after-the-fact patching: every exact-duplicate text group (see
     `group_exact_duplicates`) is treated as one indivisible unit from the
     start, so it is structurally impossible for a duplicate group to end
-    up split across train/val or across the temporal boundary -- there is
-    no later "fix-up" step that could miss a case.
+    up split across any of the four buckets -- there is no later "fix-up"
+    step that could miss a case.
 
-    A group's side is decided by its earliest member's creation time.
+    A group's side (older/recent) is decided by its earliest member's
+    creation time. Within the older era, units are shuffled once (given
+    `seed`) and sliced into val / test-in-distribution / train in that
+    order, so val_fraction_of_older and test_fraction_of_older are both
+    measured against the older era's total row count.
     `duplicate_groups_spanning_boundary` counts how many groups actually
     contained members on both sides of `boundary_date` before being
     unified onto the earliest member's side, as a diagnostic signal (not
@@ -86,12 +92,16 @@ def temporal_split(
 
     total_older_rows = sum(len(u) for u in older_units)
     val_target_n = int(total_older_rows * val_fraction_of_older)
+    test_target_n = int(total_older_rows * test_fraction_of_older)
 
     val_ids: list[str] = []
+    test_id_ids: list[str] = []
     train_ids: list[str] = []
     for unit in older_units:
         if len(val_ids) < val_target_n:
             val_ids.extend(unit)
+        elif len(test_id_ids) < test_target_n:
+            test_id_ids.extend(unit)
         else:
             train_ids.extend(unit)
 
@@ -100,7 +110,7 @@ def temporal_split(
     return SplitResult(
         train_ids=train_ids,
         val_ids=val_ids,
-        test_in_distribution_ids=[],
+        test_in_distribution_ids=test_id_ids,
         test_temporal_shift_ids=recent_era_ids,
         duplicate_groups_spanning_boundary=spanning,
     )

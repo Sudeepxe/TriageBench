@@ -34,7 +34,9 @@ def test_group_exact_duplicates_ignores_singletons():
 def test_no_id_appears_in_more_than_one_split_bucket():
     rows = [make_row(str(i), f"s{i}", f"d{i}", f"20{10 + i % 10}-01-01") for i in range(60)]
     result = temporal_split(rows, boundary_date="2018-01-01", seed=0)
-    all_ids = result.train_ids + result.val_ids + result.test_temporal_shift_ids
+    all_ids = (
+        result.train_ids + result.val_ids + result.test_in_distribution_ids + result.test_temporal_shift_ids
+    )
     assert len(all_ids) == len(set(all_ids)), "an id appeared in more than one split bucket"
     assert len(all_ids) == len(rows), "every row must land in exactly one bucket"
 
@@ -101,28 +103,47 @@ def test_empty_rows_returns_empty_split_without_error():
     assert result.duplicate_groups_spanning_boundary == 0
 
 
-def test_zero_val_fraction_puts_everything_in_train():
+def test_zero_val_and_test_fraction_puts_everything_in_train():
     rows = [make_row(str(i), f"s{i}", f"d{i}", "2015-01-01") for i in range(20)]
-    result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.0, seed=0)
+    result = temporal_split(
+        rows, boundary_date="2018-01-01", val_fraction_of_older=0.0, test_fraction_of_older=0.0, seed=0
+    )
     assert result.val_ids == []
+    assert result.test_in_distribution_ids == []
     assert len(result.train_ids) == 20
 
 
 def test_all_rows_are_one_duplicate_group_stays_together():
     rows = [make_row(str(i), "identical", "identical", "2015-01-01") for i in range(10)]
-    result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.5, seed=0)
+    result = temporal_split(
+        rows, boundary_date="2018-01-01", val_fraction_of_older=0.5, test_fraction_of_older=0.0, seed=0
+    )
     # the whole group of 10 must go entirely to train or entirely to val
     assert len(result.val_ids) in (0, 10)
     assert len(result.train_ids) in (0, 10)
     assert len(result.val_ids) + len(result.train_ids) == 10
 
 
-def test_val_fraction_is_approximately_respected():
+def test_val_and_test_fraction_are_approximately_respected():
     rows = [make_row(str(i), f"s{i}", f"d{i}", "2015-01-01") for i in range(200)]
-    result = temporal_split(rows, boundary_date="2018-01-01", val_fraction_of_older=0.2, seed=0)
-    total_older = len(result.train_ids) + len(result.val_ids)
+    result = temporal_split(
+        rows, boundary_date="2018-01-01", val_fraction_of_older=0.2, test_fraction_of_older=0.15, seed=0
+    )
+    total_older = len(result.train_ids) + len(result.val_ids) + len(result.test_in_distribution_ids)
     assert total_older == 200
     assert abs(len(result.val_ids) / total_older - 0.2) < 0.05
+    assert abs(len(result.test_in_distribution_ids) / total_older - 0.15) < 0.05
+    assert abs(len(result.train_ids) / total_older - 0.65) < 0.05
+
+
+def test_test_in_distribution_never_overlaps_val_or_train():
+    rows = [make_row(str(i), f"s{i}", f"d{i}", "2015-01-01") for i in range(300)]
+    result = temporal_split(
+        rows, boundary_date="2018-01-01", val_fraction_of_older=0.15, test_fraction_of_older=0.15, seed=1
+    )
+    assert set(result.test_in_distribution_ids).isdisjoint(result.val_ids)
+    assert set(result.test_in_distribution_ids).isdisjoint(result.train_ids)
+    assert len(result.test_in_distribution_ids) > 0
 
 
 def test_stratified_sample_respects_per_class_cap():

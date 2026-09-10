@@ -17,6 +17,15 @@ split:
   measured_split_pct: {older_era: 84.81, recent_era: 15.19}
   target_ratio: {older_era: 0.85, recent_era: 0.15}
   frozen: true
+  # Within the older era (train/val/test-in-distribution), decided here
+  # BEFORE any model was trained -- standard, unremarkable fractions
+  # chosen for their own sake, not tuned against any result. The entire
+  # recent era (15.19% of all Platform rows) is test_temporal_shift,
+  # untouched by this split. All fractions enforced by
+  # triagebench.data.splitting.temporal_split with duplicate-group
+  # safety across all four buckets.
+  older_era_fractions: {train: 0.70, val: 0.15, test_in_distribution: 0.15}
+  split_seed: 0
 
 long_tail_policy:
   # Frozen 2026-09-10 from reports/phase1_platform.json's measured
