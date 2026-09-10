@@ -112,9 +112,20 @@ def test_forward_backward_pass_on_cpu():
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available in this environment")
 def test_forward_backward_pass_on_cuda():
-    """The mandatory pre-flight check before launching any real cloud GPU
-    run for Arm 1: if this fails, the full run must not be started."""
+    """Kept for a possible future paid-cloud run (currently withdrawn --
+    see docs/DESIGN_DECISIONS.md, Arm 1 is $0-cost local MPS/CPU only).
+    If this is ever needed again: it must pass before launching any real
+    cloud GPU run."""
     loss = _run_forward_backward_on("cuda")
+    assert loss > 0
+
+
+@pytest.mark.skipif(not torch.backends.mps.is_available(), reason="MPS not available in this environment")
+def test_forward_backward_pass_on_mps():
+    """The mandatory pre-flight check before any real Arm 1 MPS run
+    (the local, $0-cost execution path) -- if this fails, don't launch
+    the real pilot."""
+    loss = _run_forward_backward_on("mps")
     assert loss > 0
 
 

@@ -80,3 +80,89 @@ This is left as a *correction* entry rather than an edit to the original
 decision above, per this file's own stated policy (a log, not a plan) --
 the original reasoning for using 7z at all (Deflate64 support) still
 holds; only the container-layout strategy changed.
+
+## 2026-09-10 — Arm 1 model substitution: DistilBERT-base instead of ModernBERT-base, zero cloud spend
+
+**Decision reversed**: after approving a cloud CUDA plan for Arm 1
+(RTX A5000, ~$0.27/hr, projected ~$2-8 total), the user withdrew
+approval for any paid cloud compute or API spend entirely. TriageBench
+must remain a $0-external-compute project going forward. This overrides
+the earlier cloud-GPU decision; the CUDA smoke test and provisioning
+code added for it are kept (harmless, zero-cost, and validate the
+device-selection code path) but will not be used against a paid
+instance.
+
+**Why the original encoder (ModernBERT-base) was impractical locally**:
+measured at ~2.11 samples/sec in the full Trainer pipeline on Apple
+M5/MPS (EXP-004) -- extrapolated to ~28.7 hours for the full-data
+regime alone, per seed. Not itself proof of an "MPS incompatibility";
+see the refinement below.
+
+**Refinement to the root-cause understanding** (new evidence, not yet in
+EXP-004): a controlled, isolated forward+backward timing probe (15
+real training steps, batch=16, seq_len=256, fixed-length padding, no
+Trainer/DataCollator/eval scaffolding) measured:
+
+| model | params | samples/sec (isolated) |
+|---|---:|---:|
+| distilbert-base-uncased | 67M | 30.36 |
+| answerdotai/ModernBERT-base | 149.6M | 10.62 |
+
+ModernBERT alone is ~2.9x slower than DistilBERT in this isolated test
+(plausibly explained by 2.2x more parameters plus architecture
+overhead) -- but that is far short of explaining the ~5x additional gap
+between this isolated 10.62/s and the ~2.11/s observed in the real
+EXP-004 pilot. Most of that additional gap is now attributed to
+`Trainer` pipeline overhead already removed since EXP-004 (specifically
+the per-epoch validation pass over the full 15,585-row val set,
+`eval_strategy="epoch"` -> changed to `"no"`), not to a ModernBERT- or
+MPS-specific defect. This means the original "MPS/ModernBERT
+incompatibility" framing was probably too strong; the more accurate
+statement is "ModernBERT-base's absolute compute cost, plus now-removed
+pipeline overhead, combined to make the full experiment matrix
+impractical on this hardware within a reasonable time budget" --
+recorded here as a further refinement of EXP-004, not a contradiction of
+its retraction (which stands: the process was not hung).
+
+**Why DistilBERT-base-uncased is a scientifically comparable
+substitute for Arm 1's role**:
+- The task's own methodology (`docs/METHODOLOGY.md`) defines Arm 1 as
+  "a small pretrained encoder, fine-tuned for Component
+  classification" -- it does not name a specific architecture as part
+  of the frozen scientific protocol. The original project brief itself
+  explicitly allows "ModernBERT/DeBERTa-class encoder **or equivalent
+  small encoder appropriate for the available hardware**."
+  Substituting within that already-anticipated flexibility, backed by
+  the diagnostic evidence above, is not a change to the task
+  definition, the leakage policy, the long-tail policy, the temporal
+  boundary, or the evaluation methodology -- all of which are
+  unchanged and still enforced by the same code paths
+  (`long_tail_policy.py`, `dataset_io.py`, the frozen splits file).
+- DistilBERT-base-uncased is a standard, extremely well-established
+  (2019, Sanh et al.) small pretrained transformer encoder, Apache-2.0
+  licensed, 67M parameters, routinely used in production text
+  classification including issue-triage-style systems -- arguably a
+  *more* realistic "small production encoder" choice than a
+  bleeding-edge 2024 architecture with immature backend support, not a
+  downgrade in relevance to the central research question.
+- Same fine-tuning protocol applies unchanged: full 21-class taxonomy
+  as the output space, same frozen train/val/test splits, same
+  long-tail policy (primary macro-F1 excludes only Incubator, full
+  micro-F1 includes everything), same bootstrap CI methodology, same
+  data-efficiency regimes (50/200/1000/full per class), same
+  determinism/hardware-recording infrastructure.
+
+**Expected resource requirements** (from the isolated probe, to be
+confirmed against the real pilot before committing to the full sweep):
+at 30.36 samples/sec, full-regime training (72,736 examples x 3
+epochs) is O(2 hours) per seed rather than O(29 hours) -- a ~14x
+improvement, on top of removing the periodic-eval overhead. All local
+on Apple M5, $0 cost.
+
+**Whether the comparison remains valid**: yes, with one explicit
+caveat recorded for the final report: Arm 1's result should be labeled
+by its actual model (DistilBERT-base-uncased), not described generically
+as "the encoder arm ran ModernBERT," and any interpretation of Arm
+1-vs-Arm-2/3/4 (small LLM arms) should note this was the practical
+encoder choice available under a strict $0 compute budget, not
+necessarily the most capable encoder that exists.

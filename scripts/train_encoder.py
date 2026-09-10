@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
-"""Arm 1: fine-tune a small pretrained encoder (ModernBERT-base) for
-Component classification, across the same data-efficiency regimes as
+"""Arm 1: fine-tune a small pretrained encoder (DistilBERT-base-uncased)
+for Component classification, across the same data-efficiency regimes as
 Arm 0, on the same frozen splits, with the same long-tail policy and
 bootstrap CI methodology.
 
+Originally targeted answerdotai/ModernBERT-base; measured at ~2.11
+samples/sec on Apple M5/MPS in the full training pipeline (see
+docs/EXPERIMENT_LOG.md EXP-004), extrapolating to ~28.7 hours for the
+full-data regime alone. Rather than spend on a cloud GPU (a paid-compute
+plan the user withdrew approval for entirely), switched to
+DistilBERT-base-uncased -- measured at ~3x ModernBERT's throughput in an
+isolated timing probe on the same hardware, well within local M5/MPS
+practicality at $0 cost. See docs/DESIGN_DECISIONS.md for the full
+substitution rationale (why the switch doesn't change the scientific
+task, leakage policy, splits, or evaluation methodology).
+
 Run with --regime to pilot a single regime first (recommended: start
-with the smallest) before committing to the full sweep -- fine-tuning a
-transformer is far more expensive per example than TF-IDF+LogReg, so
-runtime is measured empirically on the smallest regime before deciding
-whether the full-data regime is practical on Apple M5/MPS or needs a
-cloud GPU (see docs/EXPERIMENT_LOG.md for that decision once made).
+with the smallest) before committing to the full sweep.
 """
 
 from __future__ import annotations
@@ -46,7 +53,7 @@ from triagebench.evaluation.long_tail_policy import (  # noqa: E402
 from triagebench.evaluation.metrics import bootstrap_ci, micro_f1_metric  # noqa: E402
 from triagebench.models.baseline import combine_text  # noqa: E402
 
-MODEL_NAME = "answerdotai/ModernBERT-base"
+MODEL_NAME = "distilbert-base-uncased"
 MAX_LENGTH = 256  # covers median (~500 combined chars ~ 100-150 tokens) and most of the p75; documented truncation
 ARM_SEEDS = [0, 1, 2]
 
@@ -100,6 +107,17 @@ def describe_hardware(device: str) -> str:
         name = torch.cuda.get_device_name(0)
         vram_gb = torch.cuda.get_device_properties(0).total_memory / 1e9
         return f"{base} device=cuda ({name}, {vram_gb:.1f}GB VRAM, CUDA {torch.version.cuda})"
+    if device == "mps":
+        chip = "unknown chip"
+        try:
+            import subprocess
+
+            chip = subprocess.run(
+                ["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True, timeout=5
+            ).stdout.strip() or chip
+        except Exception:
+            pass
+        return f"{base} device=mps ({chip}, local $0-cost run)"
     return f"{base} device={device}"
 
 
