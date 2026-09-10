@@ -1,0 +1,47 @@
+# Data (never commit raw/processed dataset artifacts)
+data/
+*.csv
+!tests/fixtures/**/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.uv/
+.python-version
+build/
+dist/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Models / checkpoints / large artifacts
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+*.gguf
+outputs/
+
+# Reports that are large binary (keep JSON/CSV small results and plots, ignore big dumps)
+reports/results/*.parquet
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test / cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
