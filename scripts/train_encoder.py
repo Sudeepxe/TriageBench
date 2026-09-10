@@ -152,7 +152,7 @@ def measure_latency(model, tokenizer, device: str, sample_texts: list[str], n_si
     throughput = batch_size / batch_elapsed if batch_elapsed > 0 else float("inf")
 
     return {
-        "environment": f"Apple M5 MacBook Pro (device={device})",
+        "environment": describe_hardware(device),
         "n_single_measurements": len(singles_ms),
         "p50_ms": round(pct(0.50), 3),
         "p95_ms": round(pct(0.95), 3),
