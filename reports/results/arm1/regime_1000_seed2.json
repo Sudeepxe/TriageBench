@@ -1,0 +1,549 @@
+{
+  "status": "MEASURED",
+  "arm": "arm1_encoder_finetune",
+  "model_name": "distilbert-base-uncased",
+  "max_length": 256,
+  "regime": "1000",
+  "n_per_class": 1000,
+  "seed": 2,
+  "hyperparameters": {
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 2e-05
+  },
+  "long_tail_policy": {
+    "minimum_support_threshold": 50
+  },
+  "n_train_examples": 15614,
+  "n_train_classes_present": 21,
+  "train_seconds": 1615.4,
+  "train_loss_history": [
+    {
+      "step": 50,
+      "loss": 2.9576904296875,
+      "epoch": 0.05122950819672131
+    },
+    {
+      "step": 100,
+      "loss": 2.8084381103515623,
+      "epoch": 0.10245901639344263
+    },
+    {
+      "step": 150,
+      "loss": 2.5944708251953124,
+      "epoch": 0.15368852459016394
+    },
+    {
+      "step": 200,
+      "loss": 2.2647695922851563,
+      "epoch": 0.20491803278688525
+    },
+    {
+      "step": 250,
+      "loss": 1.9960276794433593,
+      "epoch": 0.25614754098360654
+    },
+    {
+      "step": 300,
+      "loss": 1.7932943725585937,
+      "epoch": 0.3073770491803279
+    },
+    {
+      "step": 350,
+      "loss": 1.6481890869140625,
+      "epoch": 0.35860655737704916
+    },
+    {
+      "step": 400,
+      "loss": 1.6096278381347657,
+      "epoch": 0.4098360655737705
+    },
+    {
+      "step": 450,
+      "loss": 1.5029029846191406,
+      "epoch": 0.4610655737704918
+    },
+    {
+      "step": 500,
+      "loss": 1.3947500610351562,
+      "epoch": 0.5122950819672131
+    },
+    {
+      "step": 550,
+      "loss": 1.3864445495605469,
+      "epoch": 0.5635245901639344
+    },
+    {
+      "step": 600,
+      "loss": 1.3743434143066406,
+      "epoch": 0.6147540983606558
+    },
+    {
+      "step": 650,
+      "loss": 1.3744210815429687,
+      "epoch": 0.6659836065573771
+    },
+    {
+      "step": 700,
+      "loss": 1.2458203125,
+      "epoch": 0.7172131147540983
+    },
+    {
+      "step": 750,
+      "loss": 1.208160400390625,
+      "epoch": 0.7684426229508197
+    },
+    {
+      "step": 800,
+      "loss": 1.1261050415039062,
+      "epoch": 0.819672131147541
+    },
+    {
+      "step": 850,
+      "loss": 1.1277914428710938,
+      "epoch": 0.8709016393442623
+    },
+    {
+      "step": 900,
+      "loss": 1.2027858734130858,
+      "epoch": 0.9221311475409836
+    },
+    {
+      "step": 950,
+      "loss": 1.1816802978515626,
+      "epoch": 0.9733606557377049
+    },
+    {
+      "step": 1000,
+      "loss": 1.019380111694336,
+      "epoch": 1.0245901639344261
+    },
+    {
+      "step": 1050,
+      "loss": 0.9674333190917969,
+      "epoch": 1.0758196721311475
+    },
+    {
+      "step": 1100,
+      "loss": 0.9971028900146485,
+      "epoch": 1.1270491803278688
+    },
+    {
+      "step": 1150,
+      "loss": 1.0173274230957032,
+      "epoch": 1.1782786885245902
+    },
+    {
+      "step": 1200,
+      "loss": 0.9699368286132812,
+      "epoch": 1.2295081967213115
+    },
+    {
+      "step": 1250,
+      "loss": 0.9843216705322265,
+      "epoch": 1.2807377049180328
+    },
+    {
+      "step": 1300,
+      "loss": 0.9455349731445313,
+      "epoch": 1.331967213114754
+    },
+    {
+      "step": 1350,
+      "loss": 0.9263458251953125,
+      "epoch": 1.3831967213114753
+    },
+    {
+      "step": 1400,
+      "loss": 0.8978211212158204,
+      "epoch": 1.4344262295081966
+    },
+    {
+      "step": 1450,
+      "loss": 0.9017850494384766,
+      "epoch": 1.485655737704918
+    },
+    {
+      "step": 1500,
+      "loss": 0.9071922302246094,
+      "epoch": 1.5368852459016393
+    },
+    {
+      "step": 1550,
+      "loss": 0.8840383148193359,
+      "epoch": 1.5881147540983607
+    },
+    {
+      "step": 1600,
+      "loss": 0.8476026153564453,
+      "epoch": 1.639344262295082
+    },
+    {
+      "step": 1650,
+      "loss": 0.9538923645019531,
+      "epoch": 1.6905737704918034
+    },
+    {
+      "step": 1700,
+      "loss": 0.8808824157714844,
+      "epoch": 1.7418032786885247
+    },
+    {
+      "step": 1750,
+      "loss": 0.8086793518066406,
+      "epoch": 1.793032786885246
+    },
+    {
+      "step": 1800,
+      "loss": 0.89166259765625,
+      "epoch": 1.8442622950819674
+    },
+    {
+      "step": 1850,
+      "loss": 0.8785211181640625,
+      "epoch": 1.8954918032786885
+    },
+    {
+      "step": 1900,
+      "loss": 0.9667593383789063,
+      "epoch": 1.9467213114754098
+    },
+    {
+      "step": 1950,
+      "loss": 0.9194239044189453,
+      "epoch": 1.9979508196721312
+    },
+    {
+      "step": 2000,
+      "loss": 0.7063227844238281,
+      "epoch": 2.0491803278688523
+    },
+    {
+      "step": 2050,
+      "loss": 0.794190673828125,
+      "epoch": 2.1004098360655736
+    },
+    {
+      "step": 2100,
+      "loss": 0.80712158203125,
+      "epoch": 2.151639344262295
+    },
+    {
+      "step": 2150,
+      "loss": 0.699560775756836,
+      "epoch": 2.2028688524590163
+    },
+    {
+      "step": 2200,
+      "loss": 0.7495937347412109,
+      "epoch": 2.2540983606557377
+    },
+    {
+      "step": 2250,
+      "loss": 0.7450067138671875,
+      "epoch": 2.305327868852459
+    },
+    {
+      "step": 2300,
+      "loss": 0.6808979034423828,
+      "epoch": 2.3565573770491803
+    },
+    {
+      "step": 2350,
+      "loss": 0.7456734466552735,
+      "epoch": 2.4077868852459017
+    },
+    {
+      "step": 2400,
+      "loss": 0.7709222412109376,
+      "epoch": 2.459016393442623
+    },
+    {
+      "step": 2450,
+      "loss": 0.7966890716552735,
+      "epoch": 2.5102459016393444
+    },
+    {
+      "step": 2500,
+      "loss": 0.7176067352294921,
+      "epoch": 2.5614754098360657
+    },
+    {
+      "step": 2550,
+      "loss": 0.7373676300048828,
+      "epoch": 2.612704918032787
+    },
+    {
+      "step": 2600,
+      "loss": 0.7448375701904297,
+      "epoch": 2.663934426229508
+    },
+    {
+      "step": 2650,
+      "loss": 0.7200426483154296,
+      "epoch": 2.7151639344262293
+    },
+    {
+      "step": 2700,
+      "loss": 0.658095703125,
+      "epoch": 2.7663934426229506
+    },
+    {
+      "step": 2750,
+      "loss": 0.7570367431640626,
+      "epoch": 2.817622950819672
+    },
+    {
+      "step": 2800,
+      "loss": 0.7388370513916016,
+      "epoch": 2.8688524590163933
+    },
+    {
+      "step": 2850,
+      "loss": 0.6654730987548828,
+      "epoch": 2.9200819672131146
+    },
+    {
+      "step": 2900,
+      "loss": 0.7121407318115235,
+      "epoch": 2.971311475409836
+    }
+  ],
+  "test_in_distribution": {
+    "n": 15585,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.5330504379603724,
+      "primary_n_examples": 15584,
+      "full_micro_f1": 0.6866217516843118,
+      "full_n_examples": 15585,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.5330504379603724,
+      "ci_low": 0.5176825620123781,
+      "ci_high": 0.5500567818351092,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.6866217516843118,
+      "ci_low": 0.6798845043310876,
+      "ci_high": 0.694642284247674,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 12677,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.5475584077008163,
+      "primary_n_examples": 12676,
+      "full_micro_f1": 0.7155478425494991,
+      "full_n_examples": 12677,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    }
+  },
+  "test_temporal_shift": {
+    "n": 18590,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.3724721787614107,
+      "primary_n_examples": 18586,
+      "full_micro_f1": 0.5417966648735879,
+      "full_n_examples": 18590,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.3724721787614107,
+      "ci_low": 0.3639534593018821,
+      "ci_high": 0.4004733442943198,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.5417966648735879,
+      "ci_low": 0.5341043571812802,
+      "ci_high": 0.5490586336740183,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 16450,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.37531836885981573,
+      "primary_n_examples": 16446,
+      "full_micro_f1": 0.5511854103343465,
+      "full_n_examples": 16450,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    }
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+    "n_single_measurements": 50,
+    "p50_ms": 6.797,
+    "p95_ms": 10.295,
+    "p99_ms": 10.67,
+    "batch_size": 32,
+    "batch_throughput_per_sec": 9718.8,
+    "max_length": 256
+  },
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+  "bootstrap_resamples": 1000,
+  "git_commit": "a109aed7eea79a1db49595db7a54c22ca237746a",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

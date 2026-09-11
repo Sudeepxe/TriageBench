@@ -1,0 +1,549 @@
+{
+  "status": "MEASURED",
+  "arm": "arm1_encoder_finetune",
+  "model_name": "distilbert-base-uncased",
+  "max_length": 256,
+  "regime": "1000",
+  "n_per_class": 1000,
+  "seed": 0,
+  "hyperparameters": {
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 2e-05
+  },
+  "long_tail_policy": {
+    "minimum_support_threshold": 50
+  },
+  "n_train_examples": 15614,
+  "n_train_classes_present": 21,
+  "train_seconds": 5029.8,
+  "train_loss_history": [
+    {
+      "step": 50,
+      "loss": 2.9675918579101563,
+      "epoch": 0.05122950819672131
+    },
+    {
+      "step": 100,
+      "loss": 2.8164752197265623,
+      "epoch": 0.10245901639344263
+    },
+    {
+      "step": 150,
+      "loss": 2.5397682189941406,
+      "epoch": 0.15368852459016394
+    },
+    {
+      "step": 200,
+      "loss": 2.2125279235839845,
+      "epoch": 0.20491803278688525
+    },
+    {
+      "step": 250,
+      "loss": 1.9494902038574218,
+      "epoch": 0.25614754098360654
+    },
+    {
+      "step": 300,
+      "loss": 1.8529788208007814,
+      "epoch": 0.3073770491803279
+    },
+    {
+      "step": 350,
+      "loss": 1.7516143798828125,
+      "epoch": 0.35860655737704916
+    },
+    {
+      "step": 400,
+      "loss": 1.6220170593261718,
+      "epoch": 0.4098360655737705
+    },
+    {
+      "step": 450,
+      "loss": 1.54548095703125,
+      "epoch": 0.4610655737704918
+    },
+    {
+      "step": 500,
+      "loss": 1.5380949401855468,
+      "epoch": 0.5122950819672131
+    },
+    {
+      "step": 550,
+      "loss": 1.3787757873535156,
+      "epoch": 0.5635245901639344
+    },
+    {
+      "step": 600,
+      "loss": 1.317618408203125,
+      "epoch": 0.6147540983606558
+    },
+    {
+      "step": 650,
+      "loss": 1.3392266845703125,
+      "epoch": 0.6659836065573771
+    },
+    {
+      "step": 700,
+      "loss": 1.2249933624267577,
+      "epoch": 0.7172131147540983
+    },
+    {
+      "step": 750,
+      "loss": 1.1738875579833985,
+      "epoch": 0.7684426229508197
+    },
+    {
+      "step": 800,
+      "loss": 1.194118118286133,
+      "epoch": 0.819672131147541
+    },
+    {
+      "step": 850,
+      "loss": 1.1196849822998047,
+      "epoch": 0.8709016393442623
+    },
+    {
+      "step": 900,
+      "loss": 1.2158957672119142,
+      "epoch": 0.9221311475409836
+    },
+    {
+      "step": 950,
+      "loss": 1.2051985168457031,
+      "epoch": 0.9733606557377049
+    },
+    {
+      "step": 1000,
+      "loss": 1.0902096557617187,
+      "epoch": 1.0245901639344261
+    },
+    {
+      "step": 1050,
+      "loss": 0.9970328521728515,
+      "epoch": 1.0758196721311475
+    },
+    {
+      "step": 1100,
+      "loss": 0.994067153930664,
+      "epoch": 1.1270491803278688
+    },
+    {
+      "step": 1150,
+      "loss": 0.9998360443115234,
+      "epoch": 1.1782786885245902
+    },
+    {
+      "step": 1200,
+      "loss": 0.9773469543457032,
+      "epoch": 1.2295081967213115
+    },
+    {
+      "step": 1250,
+      "loss": 0.9695752716064453,
+      "epoch": 1.2807377049180328
+    },
+    {
+      "step": 1300,
+      "loss": 0.9291893768310547,
+      "epoch": 1.331967213114754
+    },
+    {
+      "step": 1350,
+      "loss": 0.9233712768554687,
+      "epoch": 1.3831967213114753
+    },
+    {
+      "step": 1400,
+      "loss": 0.9542079162597656,
+      "epoch": 1.4344262295081966
+    },
+    {
+      "step": 1450,
+      "loss": 0.9632520294189453,
+      "epoch": 1.485655737704918
+    },
+    {
+      "step": 1500,
+      "loss": 0.9189815521240234,
+      "epoch": 1.5368852459016393
+    },
+    {
+      "step": 1550,
+      "loss": 0.8983087921142578,
+      "epoch": 1.5881147540983607
+    },
+    {
+      "step": 1600,
+      "loss": 1.0112599182128905,
+      "epoch": 1.639344262295082
+    },
+    {
+      "step": 1650,
+      "loss": 0.9051446533203125,
+      "epoch": 1.6905737704918034
+    },
+    {
+      "step": 1700,
+      "loss": 0.8879843902587891,
+      "epoch": 1.7418032786885247
+    },
+    {
+      "step": 1750,
+      "loss": 0.8201675415039062,
+      "epoch": 1.793032786885246
+    },
+    {
+      "step": 1800,
+      "loss": 0.8261744689941406,
+      "epoch": 1.8442622950819674
+    },
+    {
+      "step": 1850,
+      "loss": 0.8594400024414063,
+      "epoch": 1.8954918032786885
+    },
+    {
+      "step": 1900,
+      "loss": 0.8592546844482422,
+      "epoch": 1.9467213114754098
+    },
+    {
+      "step": 1950,
+      "loss": 0.9110445404052734,
+      "epoch": 1.9979508196721312
+    },
+    {
+      "step": 2000,
+      "loss": 0.7751870727539063,
+      "epoch": 2.0491803278688523
+    },
+    {
+      "step": 2050,
+      "loss": 0.7498945617675781,
+      "epoch": 2.1004098360655736
+    },
+    {
+      "step": 2100,
+      "loss": 0.8143730926513671,
+      "epoch": 2.151639344262295
+    },
+    {
+      "step": 2150,
+      "loss": 0.7181796264648438,
+      "epoch": 2.2028688524590163
+    },
+    {
+      "step": 2200,
+      "loss": 0.7872439575195312,
+      "epoch": 2.2540983606557377
+    },
+    {
+      "step": 2250,
+      "loss": 0.7743380737304687,
+      "epoch": 2.305327868852459
+    },
+    {
+      "step": 2300,
+      "loss": 0.7073564147949218,
+      "epoch": 2.3565573770491803
+    },
+    {
+      "step": 2350,
+      "loss": 0.766491928100586,
+      "epoch": 2.4077868852459017
+    },
+    {
+      "step": 2400,
+      "loss": 0.7201442718505859,
+      "epoch": 2.459016393442623
+    },
+    {
+      "step": 2450,
+      "loss": 0.6812065124511719,
+      "epoch": 2.5102459016393444
+    },
+    {
+      "step": 2500,
+      "loss": 0.7105799865722656,
+      "epoch": 2.5614754098360657
+    },
+    {
+      "step": 2550,
+      "loss": 0.793572006225586,
+      "epoch": 2.612704918032787
+    },
+    {
+      "step": 2600,
+      "loss": 0.7940623474121093,
+      "epoch": 2.663934426229508
+    },
+    {
+      "step": 2650,
+      "loss": 0.7261264038085937,
+      "epoch": 2.7151639344262293
+    },
+    {
+      "step": 2700,
+      "loss": 0.6530158233642578,
+      "epoch": 2.7663934426229506
+    },
+    {
+      "step": 2750,
+      "loss": 0.6962063598632813,
+      "epoch": 2.817622950819672
+    },
+    {
+      "step": 2800,
+      "loss": 0.6938897705078125,
+      "epoch": 2.8688524590163933
+    },
+    {
+      "step": 2850,
+      "loss": 0.7084616088867187,
+      "epoch": 2.9200819672131146
+    },
+    {
+      "step": 2900,
+      "loss": 0.7866352081298829,
+      "epoch": 2.971311475409836
+    }
+  ],
+  "test_in_distribution": {
+    "n": 15585,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.539467606923887,
+      "primary_n_examples": 15584,
+      "full_micro_f1": 0.6911774141803015,
+      "full_n_examples": 15585,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.539467606923887,
+      "ci_low": 0.5198635446059996,
+      "ci_high": 0.5586797220568919,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.6911774141803015,
+      "ci_low": 0.6838626884825152,
+      "ci_high": 0.6986846326596086,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 12677,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.5517377619883603,
+      "primary_n_examples": 12676,
+      "full_micro_f1": 0.718387631143015,
+      "full_n_examples": 12677,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    }
+  },
+  "test_temporal_shift": {
+    "n": 18590,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.37725729726731383,
+      "primary_n_examples": 18586,
+      "full_micro_f1": 0.5447552447552447,
+      "full_n_examples": 18590,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.37725729726731383,
+      "ci_low": 0.3655596680006733,
+      "ci_high": 0.4086642807919463,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.5447552447552447,
+      "ci_low": 0.5378160301237225,
+      "ci_high": 0.5524475524475524,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 16450,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.37958362138840257,
+      "primary_n_examples": 16446,
+      "full_micro_f1": 0.5539817629179331,
+      "full_n_examples": 16450,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    }
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+    "n_single_measurements": 50,
+    "p50_ms": 6.732,
+    "p95_ms": 10.01,
+    "p99_ms": 10.094,
+    "batch_size": 32,
+    "batch_throughput_per_sec": 11494.1,
+    "max_length": 256
+  },
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+  "bootstrap_resamples": 1000,
+  "git_commit": "a109aed7eea79a1db49595db7a54c22ca237746a",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "status": "MEASURED",
+  "arm": "arm1_encoder_finetune",
+  "model_name": "distilbert-base-uncased",
+  "max_length": 256,
+  "regime": "200",
+  "n_per_class": 200,
+  "seed": 1,
+  "hyperparameters": {
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 2e-05
+  },
+  "long_tail_policy": {
+    "minimum_support_threshold": 50
+  },
+  "n_train_examples": 3412,
+  "n_train_classes_present": 21,
+  "train_seconds": 435.2,
+  "train_loss_history": [
+    {
+      "step": 50,
+      "loss": 2.985908203125,
+      "epoch": 0.2336448598130841
+    },
+    {
+      "step": 100,
+      "loss": 2.908066711425781,
+      "epoch": 0.4672897196261682
+    },
+    {
+      "step": 150,
+      "loss": 2.6710516357421876,
+      "epoch": 0.7009345794392523
+    },
+    {
+      "step": 200,
+      "loss": 2.3762567138671873,
+      "epoch": 0.9345794392523364
+    },
+    {
+      "step": 250,
+      "loss": 2.2083396911621094,
+      "epoch": 1.1682242990654206
+    },
+    {
+      "step": 300,
+      "loss": 2.006884002685547,
+      "epoch": 1.4018691588785046
+    },
+    {
+      "step": 350,
+      "loss": 1.9027978515625,
+      "epoch": 1.6355140186915889
+    },
+    {
+      "step": 400,
+      "loss": 1.8644577026367188,
+      "epoch": 1.8691588785046729
+    },
+    {
+      "step": 450,
+      "loss": 1.73010986328125,
+      "epoch": 2.102803738317757
+    },
+    {
+      "step": 500,
+      "loss": 1.6660400390625,
+      "epoch": 2.336448598130841
+    },
+    {
+      "step": 550,
+      "loss": 1.644071044921875,
+      "epoch": 2.5700934579439254
+    },
+    {
+      "step": 600,
+      "loss": 1.623018798828125,
+      "epoch": 2.803738317757009
+    }
+  ],
+  "test_in_distribution": {
+    "n": 15585,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.40449056406229034,
+      "primary_n_examples": 15584,
+      "full_micro_f1": 0.45640038498556307,
+      "full_n_examples": 15585,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.40449056406229034,
+      "ci_low": 0.3798165687186176,
+      "ci_high": 0.427429760063241,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.45640038498556307,
+      "ci_low": 0.44863650946422845,
+      "ci_high": 0.46435675328841836,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 12677,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.4161575987736493,
+      "primary_n_examples": 12676,
+      "full_micro_f1": 0.4748757592490337,
+      "full_n_examples": 12677,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    }
+  },
+  "test_temporal_shift": {
+    "n": 18590,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.2896806928224175,
+      "primary_n_examples": 18586,
+      "full_micro_f1": 0.3975255513717052,
+      "full_n_examples": 18590,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.2896806928224175,
+      "ci_low": 0.2811483108441368,
+      "ci_high": 0.31318738332968477,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.3975255513717052,
+      "ci_low": 0.3897256589564282,
+      "ci_high": 0.4048951048951049,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 16450,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.29094108132340873,
+      "primary_n_examples": 16446,
+      "full_micro_f1": 0.4045592705167173,
+      "full_n_examples": 16450,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    }
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+    "n_single_measurements": 50,
+    "p50_ms": 5.984,
+    "p95_ms": 10.012,
+    "p99_ms": 10.305,
+    "batch_size": 32,
+    "batch_throughput_per_sec": 11286.5,
+    "max_length": 256
+  },
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+  "bootstrap_resamples": 1000,
+  "git_commit": "a109aed7eea79a1db49595db7a54c22ca237746a",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

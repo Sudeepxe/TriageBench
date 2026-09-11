@@ -1,0 +1,274 @@
+{
+  "status": "MEASURED",
+  "arm": "arm1_encoder_finetune",
+  "model_name": "distilbert-base-uncased",
+  "max_length": 256,
+  "regime": "50",
+  "n_per_class": 50,
+  "seed": 1,
+  "hyperparameters": {
+    "batch_size": 16,
+    "epochs": 3,
+    "learning_rate": 2e-05
+  },
+  "long_tail_policy": {
+    "minimum_support_threshold": 50
+  },
+  "n_train_examples": 985,
+  "n_train_classes_present": 21,
+  "train_seconds": 107.3,
+  "train_loss_history": [
+    {
+      "step": 50,
+      "loss": 3.0268539428710937,
+      "epoch": 0.8064516129032258
+    },
+    {
+      "step": 100,
+      "loss": 2.945900573730469,
+      "epoch": 1.6129032258064515
+    },
+    {
+      "step": 150,
+      "loss": 2.83015625,
+      "epoch": 2.4193548387096775
+    }
+  ],
+  "test_in_distribution": {
+    "n": 15585,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.1625149690587216,
+      "primary_n_examples": 15584,
+      "full_micro_f1": 0.16759704844401668,
+      "full_n_examples": 15585,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.1625149690587216,
+      "ci_low": 0.15643077657512633,
+      "ci_high": 0.16998288958344349,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.16759704844401668,
+      "ci_low": 0.16137311517484762,
+      "ci_high": 0.17343599615014438,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 12677,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.16776939623614023,
+      "primary_n_examples": 12676,
+      "full_micro_f1": 0.16880965528121794,
+      "full_n_examples": 12677,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "missing_primary_classes_in_eval_set": []
+    }
+  },
+  "test_temporal_shift": {
+    "n": 18590,
+    "policy_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.08860656366578501,
+      "primary_n_examples": 18586,
+      "full_micro_f1": 0.1399677245831092,
+      "full_n_examples": 18590,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    },
+    "primary_macro_f1_bootstrap_ci": {
+      "point_estimate": 0.08860656366578501,
+      "ci_low": 0.08427475514460182,
+      "ci_high": 0.09670994270270131,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "full_micro_f1_bootstrap_ci": {
+      "point_estimate": 0.1399677245831092,
+      "ci_low": 0.13458848843464227,
+      "ci_high": 0.14437869822485208,
+      "n_resamples": 1000,
+      "confidence": 0.95
+    },
+    "n_stable_label": 16450,
+    "stable_label_slice_evaluation": {
+      "policy": {
+        "minimum_support_threshold": 50,
+        "primary_classes": [
+          "Ant",
+          "CVS",
+          "Compare",
+          "Debug",
+          "Doc",
+          "IDE",
+          "PMC",
+          "Releng",
+          "Resources",
+          "Runtime",
+          "SWT",
+          "Scripting",
+          "Search",
+          "Team",
+          "Text",
+          "UI",
+          "Update  (deprecated - use Eclipse>Equinox>p2)",
+          "User Assistance",
+          "WebDAV",
+          "Website"
+        ],
+        "rare_classes": [
+          "Incubator"
+        ]
+      },
+      "primary_macro_f1": 0.087149425859958,
+      "primary_n_examples": 16446,
+      "full_micro_f1": 0.14145896656534954,
+      "full_n_examples": 16450,
+      "rare_class_metrics": {
+        "Incubator": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 4
+        }
+      },
+      "missing_primary_classes_in_eval_set": [
+        "Update  (deprecated - use Eclipse>Equinox>p2)"
+      ]
+    }
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+    "n_single_measurements": 50,
+    "p50_ms": 6.592,
+    "p95_ms": 10.245,
+    "p99_ms": 12.905,
+    "batch_size": 32,
+    "batch_throughput_per_sec": 10986.7,
+    "max_length": 256
+  },
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+  "bootstrap_resamples": 1000,
+  "git_commit": "a109aed7eea79a1db49595db7a54c22ca237746a",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

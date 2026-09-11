@@ -326,3 +326,77 @@ Every major run is recorded here, including failures. Chronological order.
   (single seed, 50/class) to measure real throughput empirically before
   committing to the full 4-regime x 3-seed sweep -- not assuming a
   throughput number.
+
+## 2026-09-11 — EXP-005: Arm 1 full data-efficiency sweep on DistilBERT (\$0, local MPS)
+
+- **Purpose**: User withdrew approval for all paid cloud compute.
+  Investigated a local, \$0-cost alternative before marking Arm 1
+  unevaluated (see `docs/DESIGN_DECISIONS.md` for the full substitution
+  rationale: DistilBERT-base-uncased in place of ModernBERT-base,
+  measured ~3x faster in an isolated probe on the same M5/MPS
+  hardware). MPS smoke test
+  (`tests/test_encoder_training_smoke.py::test_forward_backward_pass_on_mps`)
+  passed before any real run.
+- **Pilot** (50/class, seed 0): completed twice for cross-check --
+  105.9s and 105.8s, 27.6-27.9 samples/sec, primary macro-F1 0.177-0.178
+  (test_ID). Confirmed practical; proceeded automatically per the
+  pre-agreed five-condition gate (smoke test passed, pilot succeeded,
+  throughput practical, memory footprint is batch/seq-size-dependent
+  not dataset-size-dependent so it generalizes safely, cost is \$0).
+- **Gap found and fixed before the sweep**: neither Arm 0's nor Arm 1's
+  result JSON recorded `git_commit` or which frozen split file/boundary
+  produced it -- both required fields per the reproducibility
+  checklist. Added `triagebench.utils.reproducibility`
+  (`get_git_commit`, `get_split_metadata`), wired into both training
+  scripts, and re-ran Arm 0 (fast, deterministic -- point estimates
+  unchanged) and the Arm 1 pilot (fast -- point estimates shifted by
+  ~0.0006, consistent with MPS not being bit-exact deterministic despite
+  `torch.manual_seed`) to backfill.
+- **Data-efficiency results** (DistilBERT-base-uncased, MPS, 3 epochs,
+  batch=16, lr=2e-5, no per-epoch eval):
+
+  | regime | seed | n_train | test_ID primary-F1 | test_shift primary-F1 |
+  |---|---:|---:|---:|---:|
+  | 50 | 0/1/2 | 985 | 0.178 / 0.163 / 0.160 | 0.100 / 0.089 / 0.110 |
+  | 200 | 0/1/2 | 3,412 | 0.431 / 0.405 / 0.418 | 0.292 / 0.290 / 0.290 |
+  | 1000 | 0/1/2 | 15,614 | 0.540 / 0.530 / 0.533 | 0.377 / 0.372 / 0.373 |
+  | full | 0 | 72,736 | 0.623 | 0.447 |
+
+  Seed variance is small and consistent across regimes (stdev
+  0.004-0.011 in primary macro-F1) -- pre-registered evidence that
+  additional seeds would likely narrow CIs only marginally, informing
+  the seed-count decision for the full regime below.
+- **Full-regime seed 0 vs. Arm 0 (TF-IDF) at full data**: DistilBERT
+  0.623 (test_ID) / 0.447 (test_shift) / 0.809 (full micro-F1, test_ID)
+  vs. TF-IDF 0.630 / 0.426 / 0.740. Bootstrap 95% CIs for primary
+  macro-F1 overlap substantially (DistilBERT [0.600, 0.647] vs. TF-IDF
+  [0.593, 0.657]) -- **statistically indistinguishable** on the primary
+  headline metric at full data. DistilBERT shows a real, if modest,
+  edge on temporal-shift primary macro-F1 and a larger edge on full
+  micro-F1. Neither model is forced to "win"; both are reported as-is.
+- **Failure/anomaly found and root-caused (not hidden)**: the full-regime
+  seed-0 run's *wall-clock* elapsed time was 57,327s (~15.9 hours),
+  wildly inconsistent with its own steady-state step rate (~1.86 it/s,
+  which implies ~7,330s / ~2.04 hours of actual compute for 13,638
+  steps). Non-destructively diagnosed while the job was still running
+  (process alive, step counter advancing, loss genuinely decreasing --
+  not the EXP-004 hang pattern) by checking macOS's power log
+  (`pmset -g log`), which showed **67 distinct "Entering Sleep state"
+  events** during the run's window, roughly every 10-20 minutes
+  overnight on this unattended laptop. The process was suspended (no
+  progress, no CPU time) through most of those intervals; wall-clock
+  timers kept advancing regardless. This is an infrastructure/
+  environmental finding, not a code defect: **local unattended training
+  on a laptop is vulnerable to system idle-sleep inflating wall-clock
+  duration far beyond actual compute time.** The raw `train_seconds`
+  field in `reports/results/arm1/regime_full_seed0.json` (57327.2) is
+  left unmodified as an honest record of what literally elapsed for
+  that invocation, but must **not** be read as real compute cost --
+  ~7,330s (~2.04hr) is the corrected active-compute estimate, consistent
+  with the measured ~27-30 samples/sec seen at every other regime.
+- **Correction applied**: subsequent long local runs are launched under
+  `caffeinate -i` to prevent idle sleep from recurring, so wall-clock
+  and active-compute time can be trusted to match going forward.
+- **Tests**: 101 passed, 1 skipped, lint clean throughout.
+- **Next action**: full-regime seeds 1 and 2, under `caffeinate`, to
+  complete the 3-seed protocol.
