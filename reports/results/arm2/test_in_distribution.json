@@ -1,0 +1,90 @@
+{
+  "status": "MEASURED",
+  "arm": "arm2_llm_base_naive_prompt",
+  "model_name": "mlx-community/Qwen2.5-1.5B-Instruct-4bit",
+  "model_license": "Apache-2.0 (Qwen2.5) / MLX 4-bit quantization by mlx-community",
+  "inference_backend": "mlx-lm, local Apple M5, $0 cost",
+  "prompt_style": "naive",
+  "max_new_tokens": 20,
+  "eval_split": "test_in_distribution",
+  "eval_subset_size": 500,
+  "eval_subset_seed": 0,
+  "note_statistical_power": "Evaluated on a fixed 500-example random subset of the frozen test_in_distribution split, not the full set -- generation is far slower per example than the classifier-head arms. This subset has lower statistical power than the full-test-set evaluations used for Arms 0/1.",
+  "n_unparseable_predictions": 313,
+  "unparseable_rate_pct": 62.6,
+  "policy_evaluation": {
+    "policy": {
+      "minimum_support_threshold": 50,
+      "primary_classes": [
+        "Ant",
+        "CVS",
+        "Compare",
+        "Debug",
+        "Doc",
+        "IDE",
+        "PMC",
+        "Releng",
+        "Resources",
+        "Runtime",
+        "SWT",
+        "Scripting",
+        "Search",
+        "Team",
+        "Text",
+        "UI",
+        "Update  (deprecated - use Eclipse>Equinox>p2)",
+        "User Assistance",
+        "WebDAV",
+        "Website"
+      ],
+      "rare_classes": [
+        "Incubator"
+      ]
+    },
+    "primary_macro_f1": 0.12839274742412793,
+    "primary_n_examples": 500,
+    "full_micro_f1": 0.166,
+    "full_n_examples": 500,
+    "rare_class_metrics": {},
+    "missing_primary_classes_in_eval_set": [
+      "PMC",
+      "Scripting",
+      "Website"
+    ]
+  },
+  "primary_macro_f1_bootstrap_ci": {
+    "point_estimate": 0.12839274742412793,
+    "ci_low": 0.08780019895448345,
+    "ci_high": 0.1692846864267692,
+    "n_resamples": 1000,
+    "confidence": 0.95
+  },
+  "full_micro_f1_bootstrap_ci": {
+    "point_estimate": 0.166,
+    "ci_low": 0.134,
+    "ci_high": 0.2,
+    "n_resamples": 1000,
+    "confidence": 0.95
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm)",
+    "n_measurements": 500,
+    "p50_ms": 151.8,
+    "p95_ms": 197.6,
+    "p99_ms": 258.0,
+    "total_generation_seconds": 77.4
+  },
+  "git_commit": "9af533eea71ae2f3a4cbb1328b540117e503aed3",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

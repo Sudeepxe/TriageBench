@@ -70,9 +70,37 @@ metric.
   per-regime figures; M5 numbers are not compared against any NVIDIA
   measurement (none exists -- Arm 1 ran entirely on local $0 compute).
 
+## Arm 2/3: small LLM base vs. prompted (paired 500-example subset)
+
+Source: `reports/results/arm2/*.json`, `reports/results/arm3/*.json`.
+Model: `mlx-community/Qwen2.5-1.5B-Instruct-4bit` (Apache-2.0 base
+license), via `mlx-lm` on Apple M5, $0 cost. Evaluated on a fixed,
+uniform-random 500-example subset of each frozen test split (not the
+full set -- generation is far slower per example than the
+classifier-head arms; see `configs/experiments.yaml` `llm_arms` for the
+pre-registered subset methodology). **Lower statistical power than the
+full-test-set Arm 0/1 results above.**
+
+| Arm | Split | primary macro-F1 | full micro-F1 | unparseable rate |
+|---|---|---:|---:|---:|
+| Arm 2 (naive prompt, no class list) | test-ID | 0.1284 | 0.1660 | 62.6% |
+| Arm 2 (naive prompt, no class list) | test-shift | 0.2247 | 0.1880 | 68.0% |
+| Arm 3 (engineered prompt, full class list) | test-ID | 0.1664 | 0.2040 | 7.4% |
+| Arm 3 (engineered prompt, full class list) | test-shift | 0.1996 | 0.2680 | 6.4% |
+
+**Findings**: giving the model the 21-class vocabulary (Arm 3) collapses
+the unparseable/hallucinated-output rate from ~62-68% down to ~6-7%, but
+only modestly moves primary macro-F1 -- fixing output *format* is not
+the same as fixing classification *accuracy*. **Both LLM arms
+substantially underperform Arm 0 even at its smallest (50/class) data
+regime** (0.396 test-ID) and Arm 1's smallest regime (0.167 test-ID):
+on this task, zero-shot prompting with a small (1.5B) model does not
+outperform classical ML given even minimal supervision. This is a real,
+evidence-based answer to one of the project's central questions, not
+assumed in either direction ahead of time.
+
 ## Pending
 
-- **Arm 2/3** (small LLM base + prompted): not yet run.
 - **Arm 4** (LoRA/QLoRA fine-tune): not yet run.
 - **Arm 5** (frontier API reference): marked unavailable -- no API
   credentials configured, by explicit user decision (see

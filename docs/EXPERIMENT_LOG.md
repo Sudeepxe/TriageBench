@@ -453,3 +453,73 @@ Every major run is recorded here, including failures. Chronological order.
   data-efficiency analysis, generate plots, then move to the LLM arms
   (2/3/4) -- subject to the same local-feasibility-first investigation
   pattern established here before assuming any cloud spend is needed.
+
+## 2026-09-12 — EXP-006: Arms 2/3 -- naive vs. engineered prompting (Qwen2.5-1.5B, $0 local)
+
+- **Purpose**: Evaluate a genuinely small (1.5B) open-source LLM as a
+  frozen base (Arm 2, naive prompt) and with a frozen engineered prompt
+  (Arm 3), on the same fixed evaluation subset, entirely at $0 local
+  cost.
+- **Model**: `mlx-community/Qwen2.5-1.5B-Instruct-4bit` (Qwen2.5 base
+  license Apache-2.0; MLX 4-bit quantization by mlx-community), via
+  `mlx-lm` on Apple M5. Verified loading (~21s incl. download) and
+  generation (~1.4s/example in an isolated single-call test) before
+  committing to any real run.
+- **Pre-registered methodology** (frozen in `configs/experiments.yaml`
+  `llm_arms`, decided before any prompt was written or any result
+  existed): generation is far slower per example than the
+  classifier-head arms, so Arms 2/3/4 evaluate on a fixed
+  **uniform-random** (not stratified -- preserves real class
+  distribution) **500-example subset** of each frozen test split,
+  seed 0, reused identically across arms for paired comparison. This
+  mirrors the frontier arm's paired-subset design, applied locally for
+  wall-clock rather than API-dollar cost.
+- **Real run**: both arms x both splits (2,000 generations total)
+  completed in ~304s (~0.15s/example -- faster than the isolated probe,
+  plausibly due to shorter realized outputs), under `caffeinate -i`
+  (no sleep interruption this time -- short enough to not need the lid
+  to stay open for hours).
+- **Bug found and fixed before any run touched the real data**: a
+  first implementation of `match_component_label()` used plain
+  substring search, which would have false-matched short class names
+  (`Doc`, `Ant`, `IDE`, `CVS`, `PMC`) inside unrelated English words
+  ("documentation", "provide") -- caught by a dedicated test written
+  alongside the function, fixed with `\bLABEL\b` word-boundary regex
+  matching before any real generation was scored.
+- **Results** (primary macro-F1, 20 primary classes; unparseable
+  predictions counted as always-wrong, never coerced to a default
+  class):
+
+  | Arm | Split | primary macro-F1 | full micro-F1 | unparseable rate |
+  |---|---|---:|---:|---:|
+  | Arm 2 (naive prompt) | test-ID | 0.1284 | 0.1660 | 62.6% |
+  | Arm 2 (naive prompt) | test-shift | 0.2247 | 0.1880 | 68.0% |
+  | Arm 3 (engineered prompt) | test-ID | 0.1664 | 0.2040 | 7.4% |
+  | Arm 3 (engineered prompt) | test-shift | 0.1996 | 0.2680 | 6.4% |
+
+- **Findings**:
+  - Providing the 21-class vocabulary in the prompt (Arm 3) collapses
+    the unparseable/hallucination rate from ~62-68% to ~6-7% -- a large,
+    unambiguous effect of minimal prompt engineering.
+  - That same change improves primary macro-F1 only modestly (+0.038
+    test-ID, -0.025 test-shift) -- **fixing output format is not the
+    same as fixing classification accuracy**. Even when constrained to
+    valid labels, this 1.5B model frequently picks the wrong one.
+  - **Both LLM arms substantially underperform Arm 0 even at Arm 0's
+    smallest (50/class) data regime** (0.396 test-ID) and Arm 1's
+    smallest regime (0.167 test-ID) -- zero-shot prompting with a small
+    (1.5B) model does not "win in cold start" against classical ML with
+    even minimal supervision, on this task. A real, evidence-based
+    answer to one of the central research questions, not assumed either
+    way in advance.
+  - Arm 2's *higher* temporal-shift score vs. its in-distribution score
+    (0.225 vs. 0.128) is not interpreted as a robustness advantage --
+    with a ~65% unparseable rate, both numbers are computed over a
+    small effective sample of parseable predictions and carry limited
+    statistical weight; the bootstrap CI in each result file should be
+    consulted before drawing conclusions from this reversal.
+- **Tests**: 121 passed, 1 skipped, lint clean.
+- **Next action**: Arm 4 (LoRA/QLoRA fine-tune of the same base model)
+  -- subject to the same local-feasibility-first check (MLX has native
+  LoRA support via `mlx_lm.lora`, avoiding the MPS/transformers
+  backend issues found in EXP-004).

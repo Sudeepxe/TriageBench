@@ -54,6 +54,25 @@ def test_mean_stdev_single_value_has_zero_stdev():
     assert result["stdev"] == 0.0
 
 
+def test_load_llm_arm_reads_per_split_files(tmp_path):
+    arm2_dir = tmp_path / "arm2"
+    arm2_dir.mkdir()
+    fake = {
+        "eval_subset_size": 500,
+        "policy_evaluation": {"primary_macro_f1": 0.15, "full_micro_f1": 0.2},
+        "primary_macro_f1_bootstrap_ci": {"ci_low": 0.1, "ci_high": 0.2},
+        "n_unparseable_predictions": 100,
+        "unparseable_rate_pct": 20.0,
+        "latency": {"p50_ms": 150.0},
+    }
+    (arm2_dir / "test_in_distribution.json").write_text(json.dumps(fake))
+    result = aggregate_results.load_llm_arm(arm2_dir)
+    assert "test_in_distribution" in result
+    assert "test_temporal_shift" not in result  # file doesn't exist -- not silently faked
+    assert result["test_in_distribution"]["primary_macro_f1"] == 0.15
+    assert result["test_in_distribution"]["unparseable_rate_pct"] == 20.0
+
+
 def test_load_arm0_reads_single_seed_per_regime(tmp_path):
     arm0_dir = tmp_path / "arm0"
     arm0_dir.mkdir()

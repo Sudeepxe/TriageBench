@@ -100,6 +100,27 @@ def load_arm1(path: Path) -> dict:
     return result
 
 
+def load_llm_arm(path: Path) -> dict:
+    """Arms 2/3 have no data-efficiency regime (zero-shot/frozen-base) --
+    just one result per frozen test split, on the fixed paired subset."""
+    result = {}
+    for split in ["test_in_distribution", "test_temporal_shift"]:
+        f = path / f"{split}.json"
+        if not f.exists():
+            continue
+        r = json.loads(f.read_text())
+        result[split] = {
+            "eval_subset_size": r["eval_subset_size"],
+            "primary_macro_f1": r["policy_evaluation"]["primary_macro_f1"],
+            "full_micro_f1": r["policy_evaluation"]["full_micro_f1"],
+            "primary_macro_f1_bootstrap_ci": r["primary_macro_f1_bootstrap_ci"],
+            "n_unparseable_predictions": r["n_unparseable_predictions"],
+            "unparseable_rate_pct": r["unparseable_rate_pct"],
+            "latency_p50_ms": r["latency"]["p50_ms"],
+        }
+    return result
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--results-dir", default="reports/results", type=Path)
@@ -112,6 +133,16 @@ def main() -> None:
         "arms": {
             "arm0_tfidf_logreg": load_arm0(args.results_dir / "arm0"),
             "arm1_distilbert_finetune": load_arm1(args.results_dir / "arm1"),
+        },
+        "llm_arms_paired_subset": {
+            "note": (
+                "Arms 2/3 have no training data regime (frozen base model, zero-shot "
+                "prompting only) and are evaluated on a fixed 500-example random subset "
+                "of each frozen test split, not the full set -- see configs/experiments.yaml "
+                "llm_arms and docs/EXPERIMENT_LOG.md for the pre-registered methodology."
+            ),
+            "arm2_llm_base_naive_prompt": load_llm_arm(args.results_dir / "arm2"),
+            "arm3_llm_prompted_engineered": load_llm_arm(args.results_dir / "arm3"),
         },
     }
 
@@ -131,6 +162,17 @@ def main() -> None:
                 f"  {regime:>5}/class (n_seeds={d['n_seeds']}): "
                 f"test_ID={idf['mean']:.4f}+/-{idf['stdev']:.4f}  "
                 f"test_shift={shf['mean']:.4f}+/-{shf['stdev']:.4f}"
+            )
+
+    print("\nllm_arms_paired_subset (500-example random subset, no training regime):")
+    for arm_name in ["arm2_llm_base_naive_prompt", "arm3_llm_prompted_engineered"]:
+        by_split = summary["llm_arms_paired_subset"][arm_name]
+        print(f"  {arm_name}:")
+        for split, d in by_split.items():
+            print(
+                f"    {split}: primary_macro_f1={d['primary_macro_f1']:.4f} "
+                f"unparseable={d['n_unparseable_predictions']}/{d['eval_subset_size']} "
+                f"({d['unparseable_rate_pct']}%)"
             )
 
 

@@ -475,5 +475,72 @@
         "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
       }
     }
+  },
+  "llm_arms_paired_subset": {
+    "note": "Arms 2/3 have no training data regime (frozen base model, zero-shot prompting only) and are evaluated on a fixed 500-example random subset of each frozen test split, not the full set -- see configs/experiments.yaml llm_arms and docs/EXPERIMENT_LOG.md for the pre-registered methodology.",
+    "arm2_llm_base_naive_prompt": {
+      "test_in_distribution": {
+        "eval_subset_size": 500,
+        "primary_macro_f1": 0.12839274742412793,
+        "full_micro_f1": 0.166,
+        "primary_macro_f1_bootstrap_ci": {
+          "point_estimate": 0.12839274742412793,
+          "ci_low": 0.08780019895448345,
+          "ci_high": 0.1692846864267692,
+          "n_resamples": 1000,
+          "confidence": 0.95
+        },
+        "n_unparseable_predictions": 313,
+        "unparseable_rate_pct": 62.6,
+        "latency_p50_ms": 151.8
+      },
+      "test_temporal_shift": {
+        "eval_subset_size": 500,
+        "primary_macro_f1": 0.22467721936320972,
+        "full_micro_f1": 0.188,
+        "primary_macro_f1_bootstrap_ci": {
+          "point_estimate": 0.22467721936320972,
+          "ci_low": 0.11871547850063453,
+          "ci_high": 0.27642247549711363,
+          "n_resamples": 1000,
+          "confidence": 0.95
+        },
+        "n_unparseable_predictions": 340,
+        "unparseable_rate_pct": 68.0,
+        "latency_p50_ms": 152.9
+      }
+    },
+    "arm3_llm_prompted_engineered": {
+      "test_in_distribution": {
+        "eval_subset_size": 500,
+        "primary_macro_f1": 0.16642503728854258,
+        "full_micro_f1": 0.204,
+        "primary_macro_f1_bootstrap_ci": {
+          "point_estimate": 0.16642503728854258,
+          "ci_low": 0.11605635059582428,
+          "ci_high": 0.21198865853623422,
+          "n_resamples": 1000,
+          "confidence": 0.95
+        },
+        "n_unparseable_predictions": 37,
+        "unparseable_rate_pct": 7.4,
+        "latency_p50_ms": 146.6
+      },
+      "test_temporal_shift": {
+        "eval_subset_size": 500,
+        "primary_macro_f1": 0.19960873704677642,
+        "full_micro_f1": 0.268,
+        "primary_macro_f1_bootstrap_ci": {
+          "point_estimate": 0.19960873704677642,
+          "ci_low": 0.11723448971687851,
+          "ci_high": 0.2832004871060915,
+          "n_resamples": 1000,
+          "confidence": 0.95
+        },
+        "n_unparseable_predictions": 32,
+        "unparseable_rate_pct": 6.4,
+        "latency_p50_ms": 146.7
+      }
+    }
   }
 }
