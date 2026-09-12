@@ -2,6 +2,7 @@ from triagebench.data.splitting import (
     group_exact_duplicates,
     stratified_sample_per_class,
     temporal_split,
+    uniform_random_subset,
 )
 
 
@@ -169,3 +170,29 @@ def test_stratified_sample_is_deterministic_given_seed():
     s1 = stratified_sample_per_class(rows, "label", n_per_class=10, seed=3)
     s2 = stratified_sample_per_class(rows, "label", n_per_class=10, seed=3)
     assert s1 == s2
+
+
+def test_uniform_random_subset_respects_size_and_is_deterministic():
+    ids = [str(i) for i in range(1000)]
+    s1 = uniform_random_subset(ids, n=500, seed=0)
+    s2 = uniform_random_subset(ids, n=500, seed=0)
+    assert len(s1) == 500
+    assert s1 == s2
+    assert len(set(s1)) == 500  # no duplicates
+    assert set(s1) <= set(ids)
+
+
+def test_uniform_random_subset_caps_at_available_size():
+    ids = [str(i) for i in range(10)]
+    subset = uniform_random_subset(ids, n=500, seed=0)
+    assert sorted(subset) == sorted(ids)
+
+
+def test_uniform_random_subset_does_not_balance_by_class():
+    # Unlike stratified_sample_per_class, this samples uniformly over ids
+    # regardless of any class label -- a majority class should dominate
+    # the subset roughly in proportion to its share of the input.
+    ids = [f"majority{i}" for i in range(900)] + [f"minority{i}" for i in range(100)]
+    subset = uniform_random_subset(ids, n=200, seed=0)
+    majority_count = sum(1 for i in subset if i.startswith("majority"))
+    assert majority_count > 150  # roughly 90% of 200, allowing sampling noise

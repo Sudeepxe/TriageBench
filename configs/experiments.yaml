@@ -62,3 +62,29 @@ seeds: [0, 1, 2]
 statistics:
   bootstrap_resamples: 1000
   confidence_level: 0.95
+
+llm_arms:
+  # Frozen 2026-09-11, BEFORE any Arm 2/3/4 prompt was written or any LLM
+  # result existed. Generation-based inference (~1.4s/example measured
+  # for Qwen2.5-1.5B-Instruct-4bit via MLX on Apple M5) is far slower per
+  # example than the classifier-head arms (sub-millisecond), so Arms 2-4
+  # evaluate on a fixed-size random subset of each frozen test split
+  # rather than the full ~15.6k/18.6k examples -- mirroring the frontier
+  # arm's paired-subset methodology, applied locally for the same
+  # cost/time reason (here: wall-clock, not API dollars).
+  #
+  # Sampling is uniform random (seeded), NOT stratified/capped per class,
+  # so the subset preserves the real class distribution a production
+  # system would actually see -- unlike the *training* regimes, which
+  # are deliberately balanced.
+  #
+  # The SAME subset (by id) is reused across Arms 2, 3, and 4, and Arm
+  # 0/1 are also re-scored on it, so all arms are paired/comparable on
+  # identical examples. Must not be changed after seeing any LLM result.
+  base_model: "mlx-community/Qwen2.5-1.5B-Instruct-4bit"
+  base_model_license: "Apache-2.0 (Qwen2.5) / MLX 4-bit quantization by mlx-community"
+  inference_backend: "mlx-lm, local Apple M5, $0 cost"
+  eval_subset_size_per_split: 500
+  eval_subset_seed: 0
+  max_new_tokens: 20
+  decoded_label_matching: "case-insensitive exact match against the 21-class taxonomy; anything else counts as an unknown/hallucinated prediction"

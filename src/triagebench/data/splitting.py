@@ -137,3 +137,16 @@ def stratified_sample_per_class(
         take = len(pool) if n_per_class is None else min(n_per_class, len(pool))
         sampled.extend(pool[:take])
     return sampled
+
+
+def uniform_random_subset(ids: list[str], n: int, seed: int) -> list[str]:
+    """Uniform random sample of `n` ids (or all of them if fewer exist),
+    WITHOUT per-class balancing -- unlike stratified_sample_per_class,
+    this preserves the real class distribution of the input, for
+    evaluation subsets meant to represent realistic incoming traffic
+    (e.g. the LLM arms' bounded test-set subset, chosen for wall-clock
+    cost reasons, not to rebalance classes). Deterministic given seed."""
+    rng = random.Random(seed)
+    pool = list(ids)
+    rng.shuffle(pool)
+    return pool[: min(n, len(pool))]
