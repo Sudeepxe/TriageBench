@@ -400,3 +400,56 @@ Every major run is recorded here, including failures. Chronological order.
 - **Tests**: 101 passed, 1 skipped, lint clean throughout.
 - **Next action**: full-regime seeds 1 and 2, under `caffeinate`, to
   complete the 3-seed protocol.
+
+## 2026-09-12 — EXP-005 continued: full-regime seeds 1-2, a second sleep-related finding
+
+- **Seed 1** (`caffeinate -i env ... train_encoder.py --regime full
+  --seeds 1,2`): ran cleanly. `train_runtime=7742s` (~2.15hr) at
+  28.18 samples/sec -- matches the EXP-005 corrected active-compute
+  estimate almost exactly. `caffeinate -i` worked as intended here.
+- **Seed 2**: `train_runtime=24170s` (~6.71hr), naive throughput
+  9.03 samples/sec -- inflated again, same pattern as seed 0.
+  Diagnosed via `pmset -g log` for the exact window
+  (2026-09-11 22:02 to 2026-09-12 04:54): 34 sleep events, including
+  **2 "Clamshell Sleep" and 1 "Thermal Emergency Sleep"** (plus 24
+  "Maintenance Sleep" and 7 "Sleep Service Back to Sleep").
+  **`caffeinate -i` only prevents *idle* sleep -- it does not prevent
+  lid-closed (clamshell) sleep**, which is a separate, stronger macOS
+  trigger. The thermal emergency sleep is itself notable: sustained
+  MPS compute with the lid closed (restricting airflow) pushed the
+  machine into a thermal-safety shutdown of activity. This is a real
+  hardware/environmental constraint for this project, not a code
+  defect -- **reliable long unattended local training on this MacBook
+  requires the lid to stay open** (or an external display, or
+  `sudo pmset -b disablesleep 1`), not just `caffeinate -i`.
+  Corrected active-compute estimate (from the Trainer's own
+  steady-state per-step rate, same method as seed 0): ~7,743s
+  (~2.15hr), consistent with seeds 0 and 1. The raw
+  `train_seconds=24167.6` field in
+  `reports/results/arm1/regime_full_seed2.json` is left unmodified as
+  an honest record of what literally elapsed; this correction is
+  documented here, not substituted into the artifact. Result quality
+  itself was not affected by the interruption (training resumed
+  correctly after each wake, exactly as with seed 0).
+- **Full-regime 3-seed aggregate** (test_in_distribution primary
+  macro-F1): mean 0.6123, **stdev 0.0203** (values: 0.623, 0.630,
+  0.584) -- notably higher than the 0.004-0.011 stdev seen at the
+  50/200/1000 regimes. This is why running the complete 3-seed
+  protocol for the full regime (rather than stopping at 1 seed, which
+  was considered and explicitly deferred pending seed 0's actual
+  runtime) was the right call: seed variance at full data turned out
+  to be *larger*, not smaller, than at smaller regimes, and a
+  single-seed estimate could have been off by up to ~0.03-0.04 in
+  either direction. test_temporal_shift primary macro-F1 was much more
+  stable across seeds: mean 0.4449, stdev 0.0031.
+- **Corrected active-compute totals for the full regime, all 3 seeds**:
+  ~7,330s + 7,742s + ~7,743s = **~22,815s (~6.34 hours)**, all \$0 local
+  MPS compute (M5 unified memory, no VRAM/cost concerns at any point).
+- **Tests**: 101 passed, 1 skipped, lint clean.
+- **Arm 1 status: COMPLETE.** All 4 regimes x 3 seeds (50/200/1000
+  fully clean, full regime with two documented sleep-related wall-clock
+  anomalies but unaffected result quality) are in
+  `reports/results/arm1/`. Next: aggregate Arm 0 + Arm 1 into the
+  data-efficiency analysis, generate plots, then move to the LLM arms
+  (2/3/4) -- subject to the same local-feasibility-first investigation
+  pattern established here before assuming any cloud spend is needed.
