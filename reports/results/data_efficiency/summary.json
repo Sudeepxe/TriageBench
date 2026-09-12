@@ -1,0 +1,479 @@
+{
+  "status": "MEASURED",
+  "regime_order": [
+    "50",
+    "200",
+    "1000",
+    "full"
+  ],
+  "arms": {
+    "arm0_tfidf_logreg": {
+      "50": {
+        "n_seeds": 1,
+        "n_train_examples": 985,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.3955199632030634,
+            "stdev": 0.0,
+            "values": [
+              0.3955199632030634
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.4531280076997113,
+            "stdev": 0.0,
+            "values": [
+              0.4531280076997113
+            ]
+          },
+          "bootstrap_ci": {
+            "point_estimate": 0.3955199632030634,
+            "ci_low": 0.3824412254595487,
+            "ci_high": 0.4089318090318576,
+            "n_resamples": 1000,
+            "confidence": 0.95
+          },
+          "stable_label_slice_primary_macro_f1": 0.4010753369171157
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.2954094499743101,
+            "stdev": 0.0,
+            "values": [
+              0.2954094499743101
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.3920925228617536,
+            "stdev": 0.0,
+            "values": [
+              0.3920925228617536
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 0.192,
+        "latency_p95_ms": 0.297,
+        "train_seconds": 0.5
+      },
+      "200": {
+        "n_seeds": 1,
+        "n_train_examples": 3412,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.4990233198803189,
+            "stdev": 0.0,
+            "values": [
+              0.4990233198803189
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.550465190888675,
+            "stdev": 0.0,
+            "values": [
+              0.550465190888675
+            ]
+          },
+          "bootstrap_ci": {
+            "point_estimate": 0.4990233198803189,
+            "ci_low": 0.47252130106871426,
+            "ci_high": 0.521168740257995,
+            "n_resamples": 1000,
+            "confidence": 0.95
+          },
+          "stable_label_slice_primary_macro_f1": 0.5030401303346099
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.3649376297549491,
+            "stdev": 0.0,
+            "values": [
+              0.3649376297549491
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.485045723507262,
+            "stdev": 0.0,
+            "values": [
+              0.485045723507262
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 0.235,
+        "latency_p95_ms": 0.397,
+        "train_seconds": 3.9
+      },
+      "1000": {
+        "n_seeds": 1,
+        "n_train_examples": 15614,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.574672538462581,
+            "stdev": 0.0,
+            "values": [
+              0.574672538462581
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.6404234841193456,
+            "stdev": 0.0,
+            "values": [
+              0.6404234841193456
+            ]
+          },
+          "bootstrap_ci": {
+            "point_estimate": 0.574672538462581,
+            "ci_low": 0.5442109809260176,
+            "ci_high": 0.5997871070111181,
+            "n_resamples": 1000,
+            "confidence": 0.95
+          },
+          "stable_label_slice_primary_macro_f1": 0.5966967431514428
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.3980227062345509,
+            "stdev": 0.0,
+            "values": [
+              0.3980227062345509
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.5378698224852071,
+            "stdev": 0.0,
+            "values": [
+              0.5378698224852071
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 0.226,
+        "latency_p95_ms": 0.354,
+        "train_seconds": 13.0
+      },
+      "full": {
+        "n_seeds": 1,
+        "n_train_examples": 72736,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.6294521943570354,
+            "stdev": 0.0,
+            "values": [
+              0.6294521943570354
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.7399422521655438,
+            "stdev": 0.0,
+            "values": [
+              0.7399422521655438
+            ]
+          },
+          "bootstrap_ci": {
+            "point_estimate": 0.6294521943570354,
+            "ci_low": 0.5931424422152899,
+            "ci_high": 0.6565260001745755,
+            "n_resamples": 1000,
+            "confidence": 0.95
+          },
+          "stable_label_slice_primary_macro_f1": 0.6522389120299515
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.4260865585269194,
+            "stdev": 0.0,
+            "values": [
+              0.4260865585269194
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.6126412049488973,
+            "stdev": 0.0,
+            "values": [
+              0.6126412049488973
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 0.211,
+        "latency_p95_ms": 0.33,
+        "train_seconds": 50.9
+      }
+    },
+    "arm1_distilbert_finetune": {
+      "50": {
+        "n_seeds": 3,
+        "n_train_examples": 985,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.166809561406342,
+            "stdev": 0.007932178545906601,
+            "values": [
+              0.17793163012055854,
+              0.1625149690587216,
+              0.15998208503974587
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.1814565287135066,
+            "stdev": 0.012496501087976198,
+            "values": [
+              0.1978825794032724,
+              0.16759704844401668,
+              0.17888995829323068
+            ]
+          },
+          "stable_label_slice_primary_macro_f1": 0.17183536954614792
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.09929535561163175,
+            "stdev": 0.008590323135225212,
+            "values": [
+              0.09963947435172293,
+              0.08860656366578501,
+              0.10964002881738728
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.1596915904608212,
+            "stdev": 0.015224558236104238,
+            "values": [
+              0.17703066164604625,
+              0.1399677245831092,
+              0.16207638515330822
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 6.957,
+        "latency_p95_ms": 10.267,
+        "train_seconds_raw": [
+          105.9,
+          107.3,
+          106.8
+        ],
+        "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
+      },
+      "200": {
+        "n_seeds": 3,
+        "n_train_examples": 3412,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.41789968685084833,
+            "stdev": 0.010948662295470802,
+            "values": [
+              0.4313092000437182,
+              0.40449056406229034,
+              0.41789929644653645
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.48978718853598546,
+            "stdev": 0.024019516666791727,
+            "values": [
+              0.5010587102983638,
+              0.45640038498556307,
+              0.5119024703240295
+            ]
+          },
+          "stable_label_slice_primary_macro_f1": 0.43234794344557875
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.290576514983406,
+            "stdev": 0.0012469556393477398,
+            "values": [
+              0.2923399010890007,
+              0.2896806928224175,
+              0.28970895103879973
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.38431056123363816,
+            "stdev": 0.009803435485465053,
+            "values": [
+              0.37407208176438944,
+              0.3975255513717052,
+              0.3813340505648198
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 9.146,
+        "latency_p95_ms": 13.895,
+        "train_seconds_raw": [
+          591.8,
+          435.2,
+          364.8
+        ],
+        "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
+      },
+      "1000": {
+        "n_seeds": 3,
+        "n_train_examples": 15614,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.5341064802556145,
+            "stdev": 0.004016244346049077,
+            "values": [
+              0.539467606923887,
+              0.529801395882584,
+              0.5330504379603724
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.688011977328628,
+            "stdev": 0.002243813170681768,
+            "values": [
+              0.6911774141803015,
+              0.6862367661212705,
+              0.6866217516843118
+            ]
+          },
+          "stable_label_slice_primary_macro_f1": 0.54748269751426
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.37402791750995235,
+            "stdev": 0.0022840235621503346,
+            "values": [
+              0.37725729726731383,
+              0.37235427650113245,
+              0.3724721787614107
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.5433028509951586,
+            "stdev": 0.0012084339570015664,
+            "values": [
+              0.5447552447552447,
+              0.5433566433566434,
+              0.5417966648735879
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 6.732,
+        "latency_p95_ms": 10.01,
+        "train_seconds_raw": [
+          5029.8,
+          1624.0,
+          1615.4
+        ],
+        "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
+      },
+      "full": {
+        "n_seeds": 3,
+        "n_train_examples": 72736,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.6123053571099102,
+            "stdev": 0.02034961923654811,
+            "values": [
+              0.6229892084364782,
+              0.630105427800281,
+              0.5838214350929712
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.8097315795102128,
+            "stdev": 0.0011788697490767428,
+            "values": [
+              0.8092396535129933,
+              0.8113570741097209,
+              0.8085980109079243
+            ]
+          },
+          "stable_label_slice_primary_macro_f1": 0.6335288125102997
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.4449469152697597,
+            "stdev": 0.0031452653590711664,
+            "values": [
+              0.4474753855033257,
+              0.4468519340047434,
+              0.4405134263012101
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.6780347857270934,
+            "stdev": 0.0022023503473615736,
+            "values": [
+              0.6749327595481441,
+              0.6793437331898871,
+              0.679827864443249
+            ]
+          }
+        },
+        "rare_class_metrics": {
+          "Incubator": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          }
+        },
+        "latency_p50_ms": 6.83,
+        "latency_p95_ms": 10.327,
+        "train_seconds_raw": [
+          57327.2,
+          7742.1,
+          24167.6
+        ],
+        "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
+      }
+    }
+  }
+}
