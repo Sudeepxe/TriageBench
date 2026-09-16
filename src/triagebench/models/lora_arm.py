@@ -49,6 +49,16 @@ MAX_SEQ_LENGTH = 512
 PRECISION = "4-bit quantized frozen base (QLoRA); LoRA adapters trained in float16"
 SEEDS = [0, 1, 2]
 
+# Set True after the pilot's first attempt hit a genuine Metal
+# out-of-memory error on this 16GB M5 during the very first training
+# step (full, non-checkpointed backprop through all 28 layers of a
+# 1.5B-parameter model). This is a pure memory/compute tradeoff
+# (recompute activations during backward instead of storing all of
+# them) -- it does not change batch size, learning rate, LoRA rank, or
+# any other experimental variable, so it does not alter the frozen
+# methodology. See docs/EXPERIMENT_LOG.md for the diagnosis.
+GRAD_CHECKPOINT = True
+
 
 def compute_iters(
     n_train_examples: int,

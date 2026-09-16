@@ -1,0 +1,49 @@
+{
+  "status": "MEASURED",
+  "arm": "arm4_qlora_finetune",
+  "model_name": "mlx-community/Qwen2.5-1.5B-Instruct-4bit",
+  "model_precision": "4-bit quantized frozen base (QLoRA); LoRA adapters trained in float16",
+  "regime": "50",
+  "n_per_class": 50,
+  "seed": 0,
+  "n_train_examples": 985,
+  "n_val_examples": 200,
+  "lora_config": {
+    "rank": 8,
+    "dropout": 0.05,
+    "scale_mlx": 20.0,
+    "alpha_peft_equivalent": 160.0,
+    "num_layers": 28,
+    "target_modules": "auto (mlx-lm default): every nn.Linear/QuantizedLinear/nn.Embedding submodule within the selected layers -- for Qwen2.5's architecture this covers q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj in every block."
+  },
+  "training_config": {
+    "learning_rate": 0.0001,
+    "epochs_target": 3,
+    "iters": 183,
+    "batch_size": 4,
+    "grad_accumulation_steps": 4,
+    "effective_batch_size": 16,
+    "max_seq_length": 512,
+    "mask_prompt": true,
+    "grad_checkpoint": true
+  },
+  "mlx_version": "unknown",
+  "mlx_lm_version": "0.31.3",
+  "train_seconds": 800.5,
+  "peak_memory_gb": 4.399,
+  "adapter_path": "data/checkpoints/arm4/regime_50_seed0",
+  "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm QLoRA)",
+  "git_commit": "02811a56d1bf0a1fe67028a2d3729e0918d8ebca",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

@@ -523,3 +523,112 @@ Every major run is recorded here, including failures. Chronological order.
   -- subject to the same local-feasibility-first check (MLX has native
   LoRA support via `mlx_lm.lora`, avoiding the MPS/transformers
   backend issues found in EXP-004).
+
+## 2026-09-16 — EXP-007: Arm 4 -- QLoRA fine-tune of Qwen2.5-1.5B via MLX ($0 local)
+
+- **Purpose**: Fine-tune the same base model used by Arms 2/3
+  (`mlx-community/Qwen2.5-1.5B-Instruct-4bit`) with LoRA adapters over
+  the frozen 4-bit quantized weights (QLoRA), entirely at $0 local cost
+  via `mlx-lm`'s native LoRA support (`mlx_lm.lora`), to measure whether
+  fine-tuning closes the gap Arm 3 left between prompting and Arm 0/1.
+- **Frozen config** (`src/triagebench/models/lora_arm.py`, decided
+  before any Arm 4 result existed): rank 8, dropout 0.05, scale 20.0
+  (peft-equivalent alpha 160), all 28 transformer layers, learning rate
+  1e-4, 3 epochs (converted to `iters` via train-set size), effective
+  batch size 16 (batch 4 x grad-accumulation 4), max sequence length
+  512, engineered prompt template (same as Arm 3) so any quality
+  difference vs. Arm 3 is attributable to the adapter, not a different
+  prompt.
+- **Smoke test caught a real LoRA-mechanics misunderstanding before any
+  training ran**: `tests/test_lora_smoke.py`'s first version asserted
+  both `lora_a` and `lora_b` receive a nonzero gradient on the very
+  first backward pass. `lora_a`'s gradient was exactly zero. Root
+  cause: `mlx-lm` zero-initializes `lora_b` (standard LoRA init, so the
+  adapter contributes nothing before training); since the output
+  depends on `lora_a` only through `lora_b`, the gradient w.r.t.
+  `lora_a` is mathematically exactly zero at step 0 -- correct LoRA
+  behavior, not a bug. Fixed the test to check both phases explicitly
+  (only `lora_b` nonzero at step 0; `lora_a` nonzero only after one
+  optimizer step moves `lora_b` away from zero).
+- **Genuine failure, diagnosed and fixed -- Metal out-of-memory on the
+  very first training step**: the pilot's first attempt (50
+  examples/class, seed 0) completed its initial validation pass (Val
+  loss 8.693) then crashed with
+  `RuntimeError: [METAL] Command buffer execution failed: Insufficient
+  Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory)` inside
+  `mlx_lm/tuner/trainer.py`'s `mx.eval(state, losses, n_tokens,
+  grad_accum)`. Diagnosis: `grad_checkpoint` was hardcoded `False`,
+  meaning activations across all 28 transformer layers of a
+  1.5B-parameter model were held simultaneously for backprop, on a
+  16GB M5 with several GB already committed to background apps
+  (confirmed via `vm_stat`/`sysctl hw.memsize`/`top`, not assumed).
+  Fix: set `GRAD_CHECKPOINT = True` -- a pure memory/compute tradeoff
+  (recompute activations during backward instead of storing them all)
+  that changes no experimental variable (batch size, learning rate,
+  LoRA rank, epochs) and so does not alter the frozen methodology.
+  Retried: succeeded, peak memory stable at 4.399 GB throughout (well
+  under the 16GB budget).
+- **Pilot training** (regime 50/class, seed 0): 985 train examples, 183
+  iterations, 800.5s wall-clock (13.3 min). Validation-loss trajectory:
+  iter 1 = 8.693 -> iter 45 = 1.134 -> **iter 90 = 4.664 (a real,
+  unhidden mid-training spike)** -> iter 135 = 0.964 (recovered) ->
+  iter 180 = 0.745 (best) -> iter 183 = 0.774 (final). The spike is
+  reported as-is, not smoothed over or reinterpreted after the fact;
+  possible causes (a difficult mini-batch, transient LR/adapter
+  instability at this very small data regime) are plausible but
+  unconfirmed -- what matters for the go/no-go decision is the
+  downstream classification metric, not the LM-loss curve alone (see
+  below).
+- **Pilot evaluation** (`scripts/evaluate_lora.py`, same fixed
+  500-example paired subset per split as Arms 2/3, same engineered
+  prompt, `mlx_lm.load(..., adapter_path=...)`):
+
+  | Split | primary macro-F1 | 95% CI | full micro-F1 | unparseable |
+  |---|---:|---|---:|---:|
+  | test-ID | 0.2968 | [0.250, 0.345] | 0.2720 | 71/500 (14.2%) |
+  | test-shift | 0.2599 | [0.187, 0.316] | -- | 50/500 (10.0%) |
+
+  Compared at the same 50/class regime: Arm 0 (TF-IDF+LogReg) 0.3955 /
+  0.2954, Arm 1 (DistilBERT) 0.1668 / 0.0993, Arm 3 (same base model,
+  prompted only, no fine-tuning) 0.1664 / 0.1996. **QLoRA fine-tuning
+  substantially outperforms both prompting the same base model (Arm 3)
+  and fine-tuning DistilBERT (Arm 1) at this regime, on both splits --
+  but still trails classical TF-IDF+LogReg (Arm 0).** This is a real,
+  evidence-based result: fine-tuning clearly helps the small LLM far
+  more than prompt engineering did, without yet overtaking the
+  cheapest baseline at minimal data. The unparseable rate (14.2%/10.0%)
+  is higher than Arm 3's engineered-prompt rate (7.4%/6.4%) despite
+  training directly on the label-completion format -- plausibly because
+  the pilot's 985-example training set is small relative to the
+  21-class output space; this should be watched as data scales up.
+  Verdict: **the pilot is healthy and practical** -- no crash, stable
+  memory, a non-degenerate and internally consistent metric -- so Arm 4
+  continues automatically to the remaining regimes per the pre-agreed
+  protocol.
+- **Scaling projection and a genuine practicality finding (decided
+  BEFORE running any further regime, from the measured 4.374s/iteration
+  rate at regime 50, not chosen after seeing which number would look
+  better)**: `compute_iters` scales linearly with train-set size, and
+  QLoRA backprop through all 28 layers of a 1.5B model is far more
+  expensive per step than Arm 1's DistilBERT classifier-head training
+  (which measured ~28 samples/sec on the same machine). Projected
+  single-seed training time: 200/class ~0.78h, 1000/class ~3.55h,
+  full ~16.57h. Three seeds at the full regime would be ~50 hours of
+  continuous unattended compute on a personal laptop already documented
+  (EXP-004, EXP-005) to be vulnerable to sleep/thermal interruption over
+  multi-hour runs. Per the project's $0/local-compute constraint and
+  "no large hyperparameter sweep" instruction, the seed plan is fixed
+  **before running any of these regimes**: 50/class and 200/class get 3
+  seeds (modest cost, ~2.8h combined for the remaining seeds); 1000/class
+  gets 3 seeds if the measured seed-0 time confirms the projection stays
+  under a $0-project's reasonable overnight-run budget; **the full
+  regime is trained at seed 0 only** -- not 3 seeds -- documented here
+  as a resource-practicality limitation, not a fabricated or
+  cherry-picked result. This mirrors the same honesty standard applied
+  to Arm 1's MPS limitation: state the constraint plainly rather than
+  either silently cutting corners or burning days of laptop time to
+  force parity with Arm 0/1's seed count.
+- **Tests**: 126 passed, 1 skipped, lint clean.
+- **Next action**: run and evaluate regimes 200/1000/full per the seed
+  plan above; extend `scripts/aggregate_results.py` (`load_arm4`) and
+  regenerate plots once all regimes are in.

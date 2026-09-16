@@ -1,0 +1,93 @@
+{
+  "status": "MEASURED",
+  "arm": "arm4_qlora_finetune",
+  "model_name": "mlx-community/Qwen2.5-1.5B-Instruct-4bit",
+  "model_license": "Apache-2.0 (Qwen2.5) / MLX 4-bit quantization by mlx-community",
+  "adapter_path": "data/checkpoints/arm4/regime_50_seed0",
+  "regime": "50",
+  "seed": 0,
+  "inference_backend": "mlx-lm, local Apple M5, $0 cost",
+  "prompt_style": "engineered (same template used for training and Arm 3)",
+  "max_new_tokens": 20,
+  "eval_split": "test_in_distribution",
+  "eval_subset_size": 500,
+  "eval_subset_seed": 0,
+  "note_statistical_power": "Evaluated on the SAME fixed 500-example random subset of the frozen test_in_distribution split used by Arms 2/3 -- paired comparison. Lower statistical power than the full-test-set Arm 0/1 evaluations.",
+  "n_unparseable_predictions": 71,
+  "unparseable_rate_pct": 14.2,
+  "policy_evaluation": {
+    "policy": {
+      "minimum_support_threshold": 50,
+      "primary_classes": [
+        "Ant",
+        "CVS",
+        "Compare",
+        "Debug",
+        "Doc",
+        "IDE",
+        "PMC",
+        "Releng",
+        "Resources",
+        "Runtime",
+        "SWT",
+        "Scripting",
+        "Search",
+        "Team",
+        "Text",
+        "UI",
+        "Update  (deprecated - use Eclipse>Equinox>p2)",
+        "User Assistance",
+        "WebDAV",
+        "Website"
+      ],
+      "rare_classes": [
+        "Incubator"
+      ]
+    },
+    "primary_macro_f1": 0.2968375342629923,
+    "primary_n_examples": 500,
+    "full_micro_f1": 0.272,
+    "full_n_examples": 500,
+    "rare_class_metrics": {},
+    "missing_primary_classes_in_eval_set": [
+      "PMC",
+      "Scripting",
+      "Website"
+    ]
+  },
+  "primary_macro_f1_bootstrap_ci": {
+    "point_estimate": 0.2968375342629923,
+    "ci_low": 0.24986721080138163,
+    "ci_high": 0.3450972906429785,
+    "n_resamples": 1000,
+    "confidence": 0.95
+  },
+  "full_micro_f1_bootstrap_ci": {
+    "point_estimate": 0.272,
+    "ci_low": 0.236,
+    "ci_high": 0.308,
+    "n_resamples": 1000,
+    "confidence": 0.95
+  },
+  "latency": {
+    "environment": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm QLoRA)",
+    "n_measurements": 500,
+    "p50_ms": 243.0,
+    "p95_ms": 487.8,
+    "p99_ms": 527.5,
+    "total_generation_seconds": 136.7
+  },
+  "git_commit": "02811a56d1bf0a1fe67028a2d3729e0918d8ebca",
+  "split": {
+    "splits_file": "reports/results/splits/platform_splits.json",
+    "boundary_date": "2015-01-01T00:00:00Z",
+    "split_seed": 0,
+    "counts": {
+      "train": 72736,
+      "val": 15585,
+      "test_in_distribution": 15585,
+      "test_temporal_shift": 18590,
+      "total": 122496
+    }
+  }
+}

@@ -121,6 +121,65 @@ def load_llm_arm(path: Path) -> dict:
     return result
 
 
+def load_arm4(path: Path) -> dict:
+    """Arm 4 (QLoRA fine-tune) has training metadata in
+    train_regime_{regime}_seed{seed}.json (loss/runtime/memory -- an LM
+    loss proxy, not a classification metric) and classification results
+    in eval_regime_{regime}_seed{seed}_{split}.json (generated on the
+    SAME fixed 500-example paired subset as Arms 2/3), written by
+    separate scripts (train_lora.py, evaluate_lora.py) since training
+    and generation-based evaluation are independent, resumable steps."""
+    by_regime: dict[str, list[dict]] = {r: [] for r in REGIME_ORDER}
+    for train_f in sorted(path.glob("train_regime_*_seed*.json")):
+        train_r = json.loads(train_f.read_text())
+        regime = str(train_r["regime"])
+        seed = train_r["seed"]
+        id_f = path / f"eval_regime_{regime}_seed{seed}_test_in_distribution.json"
+        shift_f = path / f"eval_regime_{regime}_seed{seed}_test_temporal_shift.json"
+        if not (id_f.exists() and shift_f.exists()):
+            continue  # trained but not yet evaluated
+        id_r = json.loads(id_f.read_text())
+        shift_r = json.loads(shift_f.read_text())
+        by_regime.setdefault(regime, []).append(
+            {"train": train_r, "id_eval": id_r, "shift_eval": shift_r}
+        )
+
+    result = {}
+    for regime, runs in by_regime.items():
+        if not runs:
+            continue
+        id_vals = [r["id_eval"]["policy_evaluation"]["primary_macro_f1"] for r in runs]
+        id_micro = [r["id_eval"]["policy_evaluation"]["full_micro_f1"] for r in runs]
+        shift_vals = [r["shift_eval"]["policy_evaluation"]["primary_macro_f1"] for r in runs]
+        shift_micro = [r["shift_eval"]["policy_evaluation"]["full_micro_f1"] for r in runs]
+        result[regime] = {
+            "n_seeds": len(runs),
+            "n_train_examples": runs[0]["train"]["n_train_examples"],
+            "test_in_distribution": {
+                "primary_macro_f1": mean_stdev(id_vals),
+                "full_micro_f1": mean_stdev(id_micro),
+                "eval_subset_size": runs[0]["id_eval"]["eval_subset_size"],
+                "unparseable_rate_pct": [r["id_eval"]["unparseable_rate_pct"] for r in runs],
+            },
+            "test_temporal_shift": {
+                "primary_macro_f1": mean_stdev(shift_vals),
+                "full_micro_f1": mean_stdev(shift_micro),
+                "eval_subset_size": runs[0]["shift_eval"]["eval_subset_size"],
+                "unparseable_rate_pct": [r["shift_eval"]["unparseable_rate_pct"] for r in runs],
+            },
+            "rare_class_metrics": runs[0]["id_eval"]["policy_evaluation"]["rare_class_metrics"],
+            "latency_p50_ms": runs[0]["id_eval"]["latency"]["p50_ms"],
+            "latency_p95_ms": runs[0]["id_eval"]["latency"]["p95_ms"],
+            "train_seconds_raw": [r["train"]["train_seconds"] for r in runs],
+            "peak_memory_gb_raw": [r["train"]["peak_memory_gb"] for r in runs],
+            "note_statistical_power": (
+                "Evaluated on the same fixed 500-example paired subset as Arms 2/3, "
+                "not the full test split -- lower statistical power than Arm 0/1."
+            ),
+        }
+    return result
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--results-dir", default="reports/results", type=Path)
@@ -133,6 +192,7 @@ def main() -> None:
         "arms": {
             "arm0_tfidf_logreg": load_arm0(args.results_dir / "arm0"),
             "arm1_distilbert_finetune": load_arm1(args.results_dir / "arm1"),
+            "arm4_qlora_finetune": load_arm4(args.results_dir / "arm4"),
         },
         "llm_arms_paired_subset": {
             "note": (
