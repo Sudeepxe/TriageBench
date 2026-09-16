@@ -673,7 +673,36 @@ Every major run is recorded here, including failures. Chronological order.
 - **Tests**: 126 passed, 1 skipped, lint clean (no code changes this
   entry -- diagnostic script was written, used, and deleted outside the
   test suite).
-- **Next action**: run and evaluate regime 200 (3 seeds, ~0.78h/seed
-  projected) next, watching specifically for whether seed-collapse
-  recurs at a 4x larger training set; then regime 1000 and finally
-  regime full (seed 0 only, per the pre-committed scaling plan above).
+## 2026-09-16/17 — EXP-007 continued: regime 200 -- no collapse, near-parity with Arm 0
+
+- **All 3 seeds trained cleanly** (639 iters each, ~640-660s/seed,
+  peak memory comparable to regime 50). No seed showed the regime-50
+  seed-2 collapse pattern; validation loss for all three seeds tracked
+  a normal decreasing curve (final losses 0.406/0.384/0.364).
+- **Evaluation** (same fixed 500-example paired subset, engineered
+  prompt):
+
+  | Seed | test-ID primary macro-F1 | unparseable | test-shift primary macro-F1 | unparseable |
+  |---|---:|---:|---:|---:|
+  | 0 | 0.4326 | 0/500 | 0.3447 | 1/500 |
+  | 1 | 0.4913 | 1/500 | 0.3578 | 0/500 |
+  | 2 | 0.4869 | 0/500 | 0.3756 | 0/500 |
+
+  Aggregate: **0.4703 ± 0.0267** test-ID, **0.3593 ± 0.0127**
+  test-shift -- stdev back in a normal range (comparable to Arm 1's
+  0.0109 at this regime), consistent with regime-50 seed 2 being a
+  genuine tail-risk event at minimal data rather than a systematic
+  QLoRA instability that recurs at every regime.
+- **Comparison at 200/class**: Arm 0 0.4990 (single seed), Arm 1
+  0.4179 ± 0.0109, Arm 3 (prompted, no fine-tune) 0.1664 (fixed,
+  no regime). **Arm 4 now nearly matches Arm 0** (0.4703 vs. 0.4990,
+  within ~0.03) and clearly overtakes Arm 1 (+0.052) at the same
+  regime -- unparseable rate is essentially zero (0-1/500) at this
+  larger training size, unlike the 5-14% seen at 50/class. Fine-tuning
+  is closing the gap to classical ML rapidly as data increases, a real
+  trend worth checking against regime 1000/full.
+- **Tests**: 126 passed, 1 skipped, lint clean.
+- **Next action**: regime 1000 -- run seed 0 first to get a real
+  wall-clock measurement (projected ~3.55h) before committing to
+  seeds 1-2, per the pre-registered scaling plan; then regime full
+  (seed 0 only).

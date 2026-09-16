@@ -545,6 +545,76 @@
           5.27
         ],
         "note_statistical_power": "Evaluated on the same fixed 500-example paired subset as Arms 2/3, not the full test split -- lower statistical power than Arm 0/1."
+      },
+      "200": {
+        "n_seeds": 3,
+        "n_train_examples": 3412,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.4702763759268404,
+            "stdev": 0.02667211487420847,
+            "values": [
+              0.432639086392868,
+              0.4912579805169416,
+              0.48693206087071156
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.488,
+            "stdev": 0.05099019513592787,
+            "values": [
+              0.418,
+              0.508,
+              0.538
+            ]
+          },
+          "eval_subset_size": 500,
+          "unparseable_rate_pct": [
+            0.0,
+            0.2,
+            0.0
+          ]
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.35933205286187775,
+            "stdev": 0.012651798007237683,
+            "values": [
+              0.34468329985617757,
+              0.35775909741872247,
+              0.3755537613107332
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.432,
+            "stdev": 0.02416609194718914,
+            "values": [
+              0.398,
+              0.446,
+              0.452
+            ]
+          },
+          "eval_subset_size": 500,
+          "unparseable_rate_pct": [
+            0.2,
+            0.0,
+            0.0
+          ]
+        },
+        "rare_class_metrics": {},
+        "latency_p50_ms": 236.2,
+        "latency_p95_ms": 323.9,
+        "train_seconds_raw": [
+          2271.9,
+          2864.5,
+          3194.3
+        ],
+        "peak_memory_gb_raw": [
+          4.4,
+          5.271,
+          6.05
+        ],
+        "note_statistical_power": "Evaluated on the same fixed 500-example paired subset as Arms 2/3, not the full test split -- lower statistical power than Arm 0/1."
       }
     }
   },

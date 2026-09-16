@@ -106,20 +106,23 @@ Source: `reports/results/arm4/*.json`. Model: same base as Arms 2/3
 28 layers) trained via `mlx-lm`'s native QLoRA support on Apple M5, $0
 cost. Evaluated on the SAME fixed 500-example paired subset as Arms
 2/3, using the same engineered prompt template used for training.
-**Status: regime 50/class complete (3 seeds); 200/1000/full pending --
-see `docs/EXPERIMENT_LOG.md` EXP-007 for the pre-committed seed/regime
-scaling plan (full regime will run at seed 0 only, a documented
-resource-practicality limitation, not a shortcut chosen after seeing
-results).**
+**Status: regimes 50/class and 200/class complete (3 seeds each);
+1000/full pending -- see `docs/EXPERIMENT_LOG.md` EXP-007 for the
+pre-committed seed/regime scaling plan (full regime will run at seed 0
+only, a documented resource-practicality limitation, not a shortcut
+chosen after seeing results).**
 
 | Regime | n_train | primary macro-F1 (test-ID) | primary macro-F1 (test-shift) |
 |---|---:|---:|---:|
 | 50/class (3 seeds) | 985 | 0.2123 ± 0.1333 | 0.1824 ± 0.1217 |
+| 200/class (3 seeds) | 3,412 | 0.4703 ± 0.0267 | 0.3593 ± 0.0127 |
 
 Per-seed detail (50/class): seed 0 = 0.2968 / 0.2599, seed 1 = 0.3161 /
 0.2768, **seed 2 = 0.0241 / 0.0106 (a genuine LoRA mode collapse -- the
 adapter predicted "Doc" for 37/40 sampled examples regardless of true
-label; see EXP-007 for the full diagnosis)**.
+label; see EXP-007 for the full diagnosis)**. Per-seed detail
+(200/class, no collapse in any seed): seed 0 = 0.4326 / 0.3447, seed 1
+= 0.4913 / 0.3578, seed 2 = 0.4869 / 0.3756.
 
 **Findings so far**:
 - At 50/class, QLoRA fine-tuning substantially outperforms both
@@ -128,15 +131,22 @@ label; see EXP-007 for the full diagnosis)**.
   0.0993 ± 0.0086) -- on the two seeds that trained normally. It still
   trails classical TF-IDF+LogReg (Arm 0: 0.3955 / 0.2954) at this tiny
   regime.
-- **Seed variance is dramatically higher than any other arm measured
-  so far** (stdev 0.1333 vs. Arm 1's 0.0079 at the same regime) --
-  driven entirely by one seed's mode collapse, not gradual spread. A
-  team adopting this strategy in production would need to validate
-  each fine-tuning run before deploying it, not assume any single run
-  is representative -- a real, production-relevant risk this
-  multi-seed protocol surfaced that a single-seed pilot would have
-  missed entirely (in either direction: a single lucky or unlucky
-  seed).
+- **Seed variance at 50/class is dramatically higher than any other
+  arm measured so far** (stdev 0.1333 vs. Arm 1's 0.0079 at the same
+  regime) -- driven entirely by one seed's mode collapse, not gradual
+  spread. A team adopting this strategy in production would need to
+  validate each fine-tuning run before deploying it, not assume any
+  single run is representative -- a real, production-relevant risk
+  this multi-seed protocol surfaced that a single-seed pilot would
+  have missed entirely (in either direction: a single lucky or
+  unlucky seed).
+- **At 200/class, the collapse does not recur** (stdev back down to
+  0.0267, comparable to Arm 1's 0.0109) and **Arm 4 nearly closes the
+  gap to Arm 0** (0.4703 vs. 0.4990) while clearly overtaking Arm 1
+  (+0.052) -- the unparseable rate also drops to essentially zero
+  (0-1/500, vs. 5-14% at 50/class). Fine-tuning quality and stability
+  both improve quickly with more data at this model/method
+  combination.
 
 ## Pending
 
