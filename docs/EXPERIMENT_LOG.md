@@ -629,6 +629,51 @@ Every major run is recorded here, including failures. Chronological order.
   either silently cutting corners or burning days of laptop time to
   force parity with Arm 0/1's seed count.
 - **Tests**: 126 passed, 1 skipped, lint clean.
-- **Next action**: run and evaluate regimes 200/1000/full per the seed
-  plan above; extend `scripts/aggregate_results.py` (`load_arm4`) and
-  regenerate plots once all regimes are in.
+
+## 2026-09-16 — EXP-007 continued: regime 50 seeds 1-2 -- a genuine, severe seed-collapse failure
+
+- **Seed 1** trained cleanly (final val loss 0.480, 849s) and evaluated
+  *better* than seed 0: primary macro-F1 0.3161 test-ID (25/500
+  unparseable, 5.0%) / 0.2768 test-shift (7/500, 1.4%).
+- **Seed 2 produced a genuinely collapsed adapter**, not a measurement
+  artifact: primary macro-F1 **0.0241** test-ID / **0.0106** test-shift
+  -- near-random and far below every other Arm 4 result, Arm 1's worst
+  regime, and even Arm 3's frozen-base prompting. Crucially, the
+  unparseable rate stayed *low* (3/500, 4/500) -- the model was not
+  failing to produce valid labels, it was confidently producing the
+  *wrong* one. Diagnosed before drawing any conclusion (per the
+  project's no-blind-workaround rule): a one-off diagnostic script
+  (written, run, and deleted -- not part of the pipeline) generated 40
+  fresh completions from the seed-2 adapter and compared them against
+  ground truth. Result: **37/40 predictions were "Doc" and the
+  remaining 3 were "SWT"**, regardless of the actual issue content or
+  true label (true labels in the same sample were UI, SWT, Debug, Team,
+  etc. -- a normal, varied distribution). This is textbook LoRA mode
+  collapse: at this data regime (985 training examples across 21
+  classes, batch size 4, only 183 steps), an unlucky seed can walk the
+  tiny adapter into a degenerate minimum that emits a near-constant
+  label -- consistent with seed 2's own validation-loss trajectory,
+  which never recovered from its iter-90 spike and finished at 2.618
+  (vs. 0.774 and 0.480 for seeds 0 and 1) -- the LM loss curve *was* a
+  real leading indicator here, unlike the transient iter-90 spikes seed
+  0 and seed 1 both recovered from.
+- **Aggregate regime-50 result across all 3 seeds**
+  (`scripts/aggregate_results.py`): primary macro-F1 test-ID
+  **0.2123 ± 0.1333**, test-shift **0.1824 ± 0.1217** -- stdev over 15x
+  larger than Arm 1's stdev at the same regime (0.0079 test-ID). **This
+  is itself a central, evidence-based finding for the project's
+  research question**: QLoRA fine-tuning of a 1.5B model at minimal
+  data is dramatically less seed-stable than fine-tuning a much smaller
+  encoder classifier head (Arm 1) at the same regime -- a real risk a
+  team choosing this strategy in production would need to hedge
+  against (e.g. by training multiple candidates and validating before
+  deploying), not something a single-seed pilot would have revealed.
+  This is reported as measured, not smoothed into a single "it works"
+  number by only running seed 0.
+- **Tests**: 126 passed, 1 skipped, lint clean (no code changes this
+  entry -- diagnostic script was written, used, and deleted outside the
+  test suite).
+- **Next action**: run and evaluate regime 200 (3 seeds, ~0.78h/seed
+  projected) next, watching specifically for whether seed-collapse
+  recurs at a 4x larger training set; then regime 1000 and finally
+  regime full (seed 0 only, per the pre-committed scaling plan above).

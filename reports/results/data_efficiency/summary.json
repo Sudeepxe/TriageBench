@@ -474,6 +474,78 @@
         ],
         "train_seconds_note": "Some full-regime values include macOS sleep-interruption wall-clock inflation; see docs/EXPERIMENT_LOG.md EXP-005 for corrected active-compute estimates."
       }
+    },
+    "arm4_qlora_finetune": {
+      "50": {
+        "n_seeds": 3,
+        "n_train_examples": 985,
+        "test_in_distribution": {
+          "primary_macro_f1": {
+            "mean": 0.21232327266551532,
+            "stdev": 0.13334371477546067,
+            "values": [
+              0.2968375342629923,
+              0.3160586899476773,
+              0.024073593785876365
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.21333333333333335,
+            "stdev": 0.12622026602553,
+            "values": [
+              0.272,
+              0.33,
+              0.038
+            ]
+          },
+          "eval_subset_size": 500,
+          "unparseable_rate_pct": [
+            14.2,
+            5.0,
+            0.6
+          ]
+        },
+        "test_temporal_shift": {
+          "primary_macro_f1": {
+            "mean": 0.18243493532936975,
+            "stdev": 0.12167612703481637,
+            "values": [
+              0.2599065769324703,
+              0.27676386717020673,
+              0.010634361885432193
+            ]
+          },
+          "full_micro_f1": {
+            "mean": 0.19733333333333333,
+            "stdev": 0.119603047155534,
+            "values": [
+              0.234,
+              0.322,
+              0.036
+            ]
+          },
+          "eval_subset_size": 500,
+          "unparseable_rate_pct": [
+            10.0,
+            1.4,
+            0.8
+          ]
+        },
+        "rare_class_metrics": {},
+        "latency_p50_ms": 243.0,
+        "latency_p95_ms": 487.8,
+        "train_seconds_raw": [
+          800.5,
+          763.4,
+          849.5
+        ],
+        "peak_memory_gb_raw": [
+          4.399,
+          4.399,
+          5.27
+        ],
+        "note_statistical_power": "Evaluated on the same fixed 500-example paired subset as Arms 2/3, not the full test split -- lower statistical power than Arm 0/1."
+      }
     }
   },
   "llm_arms_paired_subset": {

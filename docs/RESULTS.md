@@ -99,9 +99,49 @@ outperform classical ML given even minimal supervision. This is a real,
 evidence-based answer to one of the project's central questions, not
 assumed in either direction ahead of time.
 
+## Arm 4: QLoRA fine-tune of the same small LLM (in progress)
+
+Source: `reports/results/arm4/*.json`. Model: same base as Arms 2/3
+(`mlx-community/Qwen2.5-1.5B-Instruct-4bit`), LoRA adapters (rank 8, all
+28 layers) trained via `mlx-lm`'s native QLoRA support on Apple M5, $0
+cost. Evaluated on the SAME fixed 500-example paired subset as Arms
+2/3, using the same engineered prompt template used for training.
+**Status: regime 50/class complete (3 seeds); 200/1000/full pending --
+see `docs/EXPERIMENT_LOG.md` EXP-007 for the pre-committed seed/regime
+scaling plan (full regime will run at seed 0 only, a documented
+resource-practicality limitation, not a shortcut chosen after seeing
+results).**
+
+| Regime | n_train | primary macro-F1 (test-ID) | primary macro-F1 (test-shift) |
+|---|---:|---:|---:|
+| 50/class (3 seeds) | 985 | 0.2123 ± 0.1333 | 0.1824 ± 0.1217 |
+
+Per-seed detail (50/class): seed 0 = 0.2968 / 0.2599, seed 1 = 0.3161 /
+0.2768, **seed 2 = 0.0241 / 0.0106 (a genuine LoRA mode collapse -- the
+adapter predicted "Doc" for 37/40 sampled examples regardless of true
+label; see EXP-007 for the full diagnosis)**.
+
+**Findings so far**:
+- At 50/class, QLoRA fine-tuning substantially outperforms both
+  prompting the same frozen base model (Arm 3: 0.1664 / 0.1996) and
+  fine-tuning DistilBERT at the same regime (Arm 1: 0.1668 ± 0.0079 /
+  0.0993 ± 0.0086) -- on the two seeds that trained normally. It still
+  trails classical TF-IDF+LogReg (Arm 0: 0.3955 / 0.2954) at this tiny
+  regime.
+- **Seed variance is dramatically higher than any other arm measured
+  so far** (stdev 0.1333 vs. Arm 1's 0.0079 at the same regime) --
+  driven entirely by one seed's mode collapse, not gradual spread. A
+  team adopting this strategy in production would need to validate
+  each fine-tuning run before deploying it, not assume any single run
+  is representative -- a real, production-relevant risk this
+  multi-seed protocol surfaced that a single-seed pilot would have
+  missed entirely (in either direction: a single lucky or unlucky
+  seed).
+
 ## Pending
 
-- **Arm 4** (LoRA/QLoRA fine-tune): not yet run.
+- **Arm 4** regimes 200/1000/full: not yet run (in progress -- see
+  above).
 - **Arm 5** (frontier API reference): marked unavailable -- no API
   credentials configured, by explicit user decision (see
   `docs/EXPERIMENT_LOG.md`).
