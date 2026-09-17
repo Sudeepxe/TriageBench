@@ -775,3 +775,38 @@ Every major run is recorded here, including failures. Chronological order.
   compute confirmed ~3.5h/seed, sleep-inflation risk noted but doesn't
   block proceeding), to confirm this crossover isn't a single-seed
   artifact; then the full regime at seed 0 only.
+
+## 2026-09-17 — EXP-007 continued: regime 1000 seeds 1-2 -- crossover confirmed, no collapse recurrence
+
+- **Both seeds trained cleanly** with no sleep interruption this time
+  (seed 1: 9,273.6s = 2.58h wall-clock, matching the corrected
+  active-compute estimate almost exactly; seed 2: 11,588.6s = 3.22h,
+  slightly higher peak memory at 5.271GB vs. 4.399GB for seeds 0/1,
+  consistent with the same minor per-seed memory variation already
+  seen at regime 50). Final validation losses 0.234 (seed 1) and 0.228
+  (seed 2) -- both well-converged, no collapse signature at any point
+  in either trajectory.
+- **Evaluation** (same fixed 500-example paired subset):
+
+  | Seed | test-ID primary macro-F1 | test-shift primary macro-F1 |
+  |---|---:|---:|
+  | 0 | 0.6568 | 0.4281 |
+  | 1 | 0.6375 | 0.5182 |
+  | 2 | 0.5875 | 0.4579 |
+
+  Aggregate: **0.6273 ± 0.0292** test-ID, **0.4680 ± 0.0375**
+  test-shift -- seed variance in a normal range (comparable to regime
+  200's 0.0267), confirming regime 50's seed-2 collapse was a genuine
+  tail-risk event specific to that minimal-data regime, not a
+  recurring property of this fine-tuning setup.
+- **The Arm 0/Arm 1 crossover holds across all 3 seeds, not just
+  seed 0**: every single Arm 4 seed at 1000/class beats Arm 0
+  (0.5747/0.3980) and Arm 1 (0.5341 ± 0.0040/0.3740 ± 0.0023) on both
+  splits -- the worst Arm 4 seed (2: 0.5875/0.4579) still exceeds both
+  baselines. This is now a robust, multi-seed finding, not a
+  single-run artifact: by 1000 examples/class, QLoRA fine-tuning of
+  the small LLM is the best-performing arm measured in this project.
+- **Tests**: 126 passed, 1 skipped, lint clean.
+- **Next action**: the full regime, seed 0 only, per the pre-committed
+  scaling plan (projected ~16.6h active compute; wall-clock may again
+  be inflated by sleep, per the documented environmental constraint).

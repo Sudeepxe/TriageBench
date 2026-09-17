@@ -619,45 +619,57 @@
         "note_statistical_power": "Evaluated on the same fixed 500-example paired subset as Arms 2/3, not the full test split -- lower statistical power than Arm 0/1."
       },
       "1000": {
-        "n_seeds": 1,
+        "n_seeds": 3,
         "n_train_examples": 15614,
         "test_in_distribution": {
           "primary_macro_f1": {
-            "mean": 0.656848768825087,
-            "stdev": 0.0,
+            "mean": 0.6272893538595742,
+            "stdev": 0.029210155323740272,
             "values": [
-              0.656848768825087
+              0.656848768825087,
+              0.6375002546372824,
+              0.587519038116353
             ]
           },
           "full_micro_f1": {
-            "mean": 0.7,
-            "stdev": 0.0,
+            "mean": 0.674,
+            "stdev": 0.020461345670963714,
             "values": [
-              0.7
+              0.7,
+              0.672,
+              0.65
             ]
           },
           "eval_subset_size": 500,
           "unparseable_rate_pct": [
+            0.0,
+            0.0,
             0.0
           ]
         },
         "test_temporal_shift": {
           "primary_macro_f1": {
-            "mean": 0.42808567881250525,
-            "stdev": 0.0,
+            "mean": 0.46804696123597384,
+            "stdev": 0.03748516535448945,
             "values": [
-              0.42808567881250525
+              0.42808567881250525,
+              0.5181942788106083,
+              0.457860926084808
             ]
           },
           "full_micro_f1": {
-            "mean": 0.55,
-            "stdev": 0.0,
+            "mean": 0.5666666666666667,
+            "stdev": 0.026449112566503136,
             "values": [
-              0.55
+              0.55,
+              0.546,
+              0.604
             ]
           },
           "eval_subset_size": 500,
           "unparseable_rate_pct": [
+            0.0,
+            0.0,
             0.0
           ]
         },
@@ -665,11 +677,15 @@
         "latency_p50_ms": 245.8,
         "latency_p95_ms": 321.4,
         "train_seconds_raw": [
-          57854.1
+          57854.1,
+          9273.6,
+          11588.6
         ],
         "train_seconds_note": "Some values include macOS Clamshell/Maintenance-Sleep wall-clock inflation from long unattended runs (caffeinate -i does not prevent lid-closed sleep) -- see docs/EXPERIMENT_LOG.md EXP-007 for the pmset -g log diagnosis and corrected active-compute estimates.",
         "peak_memory_gb_raw": [
-          4.399
+          4.399,
+          4.399,
+          5.271
         ],
         "note_statistical_power": "Evaluated on the same fixed 500-example paired subset as Arms 2/3, not the full test split -- lower statistical power than Arm 0/1."
       }

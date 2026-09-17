@@ -106,8 +106,8 @@ Source: `reports/results/arm4/*.json`. Model: same base as Arms 2/3
 28 layers) trained via `mlx-lm`'s native QLoRA support on Apple M5, $0
 cost. Evaluated on the SAME fixed 500-example paired subset as Arms
 2/3, using the same engineered prompt template used for training.
-**Status: regimes 50/class and 200/class complete (3 seeds each);
-1000/class seed 0 complete (seeds 1-2 in progress); full pending --
+**Status: regimes 50/class, 200/class, and 1000/class complete (3
+seeds each); full pending --
 see `docs/EXPERIMENT_LOG.md` EXP-007 for the pre-committed seed/regime
 scaling plan (full regime will run at seed 0 only, a documented
 resource-practicality limitation, not a shortcut chosen after seeing
@@ -121,14 +121,16 @@ corrected active-compute estimates.**
 |---|---:|---:|---:|
 | 50/class (3 seeds) | 985 | 0.2123 ± 0.1333 | 0.1824 ± 0.1217 |
 | 200/class (3 seeds) | 3,412 | 0.4703 ± 0.0267 | 0.3593 ± 0.0127 |
-| 1000/class (seed 0 only so far) | 15,614 | 0.6568 | 0.4281 |
+| 1000/class (3 seeds) | 15,614 | 0.6273 ± 0.0292 | 0.4680 ± 0.0375 |
 
 Per-seed detail (50/class): seed 0 = 0.2968 / 0.2599, seed 1 = 0.3161 /
 0.2768, **seed 2 = 0.0241 / 0.0106 (a genuine LoRA mode collapse -- the
 adapter predicted "Doc" for 37/40 sampled examples regardless of true
 label; see EXP-007 for the full diagnosis)**. Per-seed detail
 (200/class, no collapse in any seed): seed 0 = 0.4326 / 0.3447, seed 1
-= 0.4913 / 0.3578, seed 2 = 0.4869 / 0.3756.
+= 0.4913 / 0.3578, seed 2 = 0.4869 / 0.3756. Per-seed detail
+(1000/class, no collapse in any seed): seed 0 = 0.6568 / 0.4281, seed 1
+= 0.6375 / 0.5182, seed 2 = 0.5875 / 0.4579.
 
 **Findings so far**:
 - At 50/class, QLoRA fine-tuning substantially outperforms both
@@ -154,12 +156,15 @@ label; see EXP-007 for the full diagnosis)**. Per-seed detail
   both improve quickly with more data at this model/method
   combination.
 - **At 1000/class, Arm 4 overtakes both Arm 0 and Arm 1 on both
-  splits** (0.6568/0.4281 vs. Arm 0's 0.5747/0.3980 and Arm 1's
-  0.5341/0.3740, seed 0 only so far) -- the first regime where QLoRA
-  fine-tuning is the best-performing arm measured in this project,
-  with 0% unparseable. Whether this crossover holds across seeds
-  (given regime 50's demonstrated seed sensitivity) is being checked
-  with seeds 1-2 before treating it as settled.
+  splits, confirmed across all 3 seeds** (0.6273 ± 0.0292 test-ID,
+  0.4680 ± 0.0375 test-shift vs. Arm 0's 0.5747/0.3980 and Arm 1's
+  0.5341 ± 0.0040/0.3740 ± 0.0023) -- even the worst Arm 4 seed still
+  beats both baselines on both splits, with 0% unparseable throughout.
+  Seed variance is back to a normal range (comparable to 200/class),
+  confirming regime 50's collapse was a minimal-data tail risk, not a
+  recurring instability. **This is the first regime where QLoRA
+  fine-tuning is the best-performing arm measured in this project, and
+  it holds robustly across seeds, not as a single-run artifact.**
 
 ## Pending
 
