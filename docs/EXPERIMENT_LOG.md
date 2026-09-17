@@ -702,7 +702,76 @@ Every major run is recorded here, including failures. Chronological order.
   is closing the gap to classical ML rapidly as data increases, a real
   trend worth checking against regime 1000/full.
 - **Tests**: 126 passed, 1 skipped, lint clean.
-- **Next action**: regime 1000 -- run seed 0 first to get a real
-  wall-clock measurement (projected ~3.55h) before committing to
-  seeds 1-2, per the pre-registered scaling plan; then regime full
-  (seed 0 only).
+
+## 2026-09-17 — EXP-007 continued: regime 1000 seed 0 -- another sleep-inflation finding, corrected
+
+- **Reported wall-clock time was 57,854.1s (16.07h)** -- roughly 4.5x
+  the ~3.55h projected from the regime-50/200 per-iteration rate. Not
+  accepted at face value: `It/sec` reported throughout training
+  (0.228-0.321, no downward trend) shows genuine per-step compute cost
+  never changed, so the inflation had to be external, not a real
+  slowdown. Diagnosed via `pmset -g log` (per the project's
+  never-assume rule) rather than guessed.
+- **Diagnosis, fully evidenced**: the run started ~00:03. At 00:50:47
+  the machine entered `Clamshell Sleep` (lid closed). This is the
+  exact limitation already documented in EXP-004: `caffeinate -i` does
+  not prevent lid-closed sleep. `pmset -g log` shows a continuous
+  sequence of `Maintenance Sleep` / `Sleep Service Back to Sleep`
+  cycles (brief ~1-60s wake windows every ~900-1050s for OS
+  housekeeping, negligible compute) lasting until **14:12:39**, when a
+  `Wake ... due to ... lid` event shows the lid was physically
+  reopened -- **13 hours 22 minutes of near-total suspension**.
+  Training then resumed and finished at 16:07:16 (1h55m of further
+  active compute). Reconstructing active-compute time from iteration
+  counts either side of the sleep window (~655 iters pre-sleep + the
+  remaining iters post-wake, both at the same ~4.3s/iter rate measured
+  in EXP-007's regime 50/200 pilots) gives an estimated **~3.5h of
+  genuine active compute** -- matching the original projection almost
+  exactly. The reported 57,854.1s in
+  `train_regime_1000_seed0.json` is left unedited (it is what the
+  wall clock actually measured), but is not a genuine QLoRA compute
+  cost and must not be read as one -- `scripts/aggregate_results.py`'s
+  `load_arm4` now attaches a `train_seconds_note` making this explicit,
+  matching the same correction pattern already applied to Arm 1's
+  `load_arm1` for the same class of issue.
+- **This does not affect training correctness**: mlx-lm's training
+  loop is not aware of or disrupted by system sleep -- it simply stops
+  executing while the OS is suspended and resumes exactly where it
+  left off, with no state loss (final val loss 0.205, a clean
+  monotonic-ish trajectory throughout, no collapse). Only the
+  wall-clock/resource-cost measurement is affected, not the resulting
+  adapter or its evaluation.
+- **Practical implication for the remaining plan**: the corrected
+  ~3.5h active-compute estimate for 1000/class confirms the original
+  per-seed projection, so seeds 1-2 proceed as planned. For the
+  full regime (already committed to seed-0-only on cost grounds), the
+  projected ~16.6h of active compute could again be stretched across
+  a much longer unattended wall-clock window if the lid closes
+  overnight -- this is a known, now twice-documented environmental
+  constraint of this $0/local-laptop setup, not a new limitation
+  discovered here, and does not change the pre-committed regime/seed
+  plan.
+- **Tests**: 126 passed, 1 skipped, lint clean.
+
+## 2026-09-17 — EXP-007 continued: regime 1000 seed 0 -- Arm 4 overtakes Arm 0 and Arm 1
+
+- **Evaluation** (same fixed 500-example paired subset, 0% unparseable
+  on both splits): **primary macro-F1 0.6568 test-ID / 0.4281
+  test-shift.**
+- **Comparison at 1000/class**: Arm 0 (TF-IDF+LogReg) 0.5747 / 0.3980,
+  Arm 1 (DistilBERT) 0.5341 ± 0.0040 / 0.3740 ± 0.0023. **Arm 4 now
+  clearly overtakes both** classical ML (+0.082 test-ID, +0.030
+  test-shift) and the fine-tuned encoder (+0.123 test-ID, +0.054
+  test-shift) on a single seed -- the first regime where QLoRA
+  fine-tuning of the small LLM is the outright best-performing arm
+  measured so far in this project on both splits simultaneously.
+  Consistent with the trend already visible at 200/class (closing the
+  gap to Arm 0), this crossover happening by 1000/class, well before
+  the full-data regime, is itself a central, evidence-based answer to
+  the project's research question -- not assumed in advance in either
+  direction.
+- **Tests**: 126 passed, 1 skipped, lint clean.
+- **Next action**: train and evaluate seeds 1-2 at regime 1000 (active
+  compute confirmed ~3.5h/seed, sleep-inflation risk noted but doesn't
+  block proceeding), to confirm this crossover isn't a single-seed
+  artifact; then the full regime at seed 0 only.

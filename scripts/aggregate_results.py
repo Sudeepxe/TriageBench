@@ -171,6 +171,12 @@ def load_arm4(path: Path) -> dict:
             "latency_p50_ms": runs[0]["id_eval"]["latency"]["p50_ms"],
             "latency_p95_ms": runs[0]["id_eval"]["latency"]["p95_ms"],
             "train_seconds_raw": [r["train"]["train_seconds"] for r in runs],
+            "train_seconds_note": (
+                "Some values include macOS Clamshell/Maintenance-Sleep wall-clock "
+                "inflation from long unattended runs (caffeinate -i does not prevent "
+                "lid-closed sleep) -- see docs/EXPERIMENT_LOG.md EXP-007 for the "
+                "pmset -g log diagnosis and corrected active-compute estimates."
+            ),
             "peak_memory_gb_raw": [r["train"]["peak_memory_gb"] for r in runs],
             "note_statistical_power": (
                 "Evaluated on the same fixed 500-example paired subset as Arms 2/3, "

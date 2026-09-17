@@ -107,15 +107,21 @@ Source: `reports/results/arm4/*.json`. Model: same base as Arms 2/3
 cost. Evaluated on the SAME fixed 500-example paired subset as Arms
 2/3, using the same engineered prompt template used for training.
 **Status: regimes 50/class and 200/class complete (3 seeds each);
-1000/full pending -- see `docs/EXPERIMENT_LOG.md` EXP-007 for the
-pre-committed seed/regime scaling plan (full regime will run at seed 0
-only, a documented resource-practicality limitation, not a shortcut
-chosen after seeing results).**
+1000/class seed 0 complete (seeds 1-2 in progress); full pending --
+see `docs/EXPERIMENT_LOG.md` EXP-007 for the pre-committed seed/regime
+scaling plan (full regime will run at seed 0 only, a documented
+resource-practicality limitation, not a shortcut chosen after seeing
+results). Note: some Arm 4 `train_seconds` values include macOS
+Clamshell/Maintenance-Sleep wall-clock inflation from long unattended
+local runs (`caffeinate -i` does not prevent lid-closed sleep) --
+training correctness is unaffected; see EXP-007 for the diagnosis and
+corrected active-compute estimates.**
 
 | Regime | n_train | primary macro-F1 (test-ID) | primary macro-F1 (test-shift) |
 |---|---:|---:|---:|
 | 50/class (3 seeds) | 985 | 0.2123 ± 0.1333 | 0.1824 ± 0.1217 |
 | 200/class (3 seeds) | 3,412 | 0.4703 ± 0.0267 | 0.3593 ± 0.0127 |
+| 1000/class (seed 0 only so far) | 15,614 | 0.6568 | 0.4281 |
 
 Per-seed detail (50/class): seed 0 = 0.2968 / 0.2599, seed 1 = 0.3161 /
 0.2768, **seed 2 = 0.0241 / 0.0106 (a genuine LoRA mode collapse -- the
@@ -147,6 +153,13 @@ label; see EXP-007 for the full diagnosis)**. Per-seed detail
   (0-1/500, vs. 5-14% at 50/class). Fine-tuning quality and stability
   both improve quickly with more data at this model/method
   combination.
+- **At 1000/class, Arm 4 overtakes both Arm 0 and Arm 1 on both
+  splits** (0.6568/0.4281 vs. Arm 0's 0.5747/0.3980 and Arm 1's
+  0.5341/0.3740, seed 0 only so far) -- the first regime where QLoRA
+  fine-tuning is the best-performing arm measured in this project,
+  with 0% unparseable. Whether this crossover holds across seeds
+  (given regime 50's demonstrated seed sensitivity) is being checked
+  with seeds 1-2 before treating it as settled.
 
 ## Pending
 
