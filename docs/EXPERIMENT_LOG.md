@@ -810,3 +810,30 @@ Every major run is recorded here, including failures. Chronological order.
 - **Next action**: the full regime, seed 0 only, per the pre-committed
   scaling plan (projected ~16.6h active compute; wall-clock may again
   be inflated by sleep, per the documented environmental constraint).
+
+## 2026-09-19 — EXP-007 continued: full-regime seed 0 run lost to an unexplained reboot
+
+- **What happened**: the full-regime (72,736 examples, 13,638 iters)
+  seed-0 run started 2026-09-17 22:13 and reached at least iter 10,896
+  (val loss 0.173 at iter 6,818, 0.169 at iter 10,227 -- healthy, no
+  collapse) before the machine rebooted at 2026-09-19 04:36. No result
+  JSON and no adapter exist: `train_lora.py` saves only at the final
+  iteration (`save_every = iters`), so all progress was lost. This is
+  reported as a genuine failed run, not a result.
+- **Evidence, not assumption**: `pmset -g log` shows Clamshell Sleep
+  (lid closed) at 2026-09-18 23:29:20 followed by hours of
+  Maintenance/Sleep-Service cycling (the same pattern as the regime-1000
+  seed-0 run), then `powerd` restarting at 04:37 and `last reboot`
+  showing 04:36. No kernel panic report was found in
+  `/Library/Logs/DiagnosticReports`, so the *cause of the reboot itself
+  is unknown* (not diagnosed); only the preceding sleep pattern and the
+  loss of the process are established.
+- **Consequence**: full-regime Arm 4 is currently NOT MEASURED. Nothing
+  else is affected -- regimes 50/200/1000 (all 3 seeds each) are
+  committed and complete.
+- **Next action**: relaunch full-regime seed 0 unchanged (same frozen
+  config; no methodology change), on the same $0 local hardware. The
+  known risk is that a ~14-16h uncheckpointed run on a laptop that
+  sleeps when the lid closes can fail again; if it does, full regime
+  will be reported as BLOCKED by local-compute reliability rather than
+  worked around.
