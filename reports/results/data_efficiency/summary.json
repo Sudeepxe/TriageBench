@@ -499,6 +499,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.17733011675268856,
+            "ci_high": 0.25384935312418677
+          },
           "unparseable_rate_pct": [
             14.2,
             5.0,
@@ -525,6 +529,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.13315263039768666,
+            "ci_high": 0.22233312646591938
+          },
           "unparseable_rate_pct": [
             10.0,
             1.4,
@@ -570,6 +578,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.42011677453314317,
+            "ci_high": 0.5241726024053944
+          },
           "unparseable_rate_pct": [
             0.0,
             0.2,
@@ -596,6 +608,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.30396325399946844,
+            "ci_high": 0.44309929088320543
+          },
           "unparseable_rate_pct": [
             0.2,
             0.0,
@@ -641,6 +657,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.5767833837968029,
+            "ci_high": 0.6883634073151121
+          },
           "unparseable_rate_pct": [
             0.0,
             0.0,
@@ -667,6 +687,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.3999594754009991,
+            "ci_high": 0.5628424146916549
+          },
           "unparseable_rate_pct": [
             0.0,
             0.0,
@@ -708,6 +732,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.5685230116638209,
+            "ci_high": 0.7050598647952324
+          },
           "unparseable_rate_pct": [
             0.0
           ]
@@ -728,6 +756,10 @@
             ]
           },
           "eval_subset_size": 500,
+          "bootstrap_ci_mean_over_seeds": {
+            "ci_low": 0.4009015694516387,
+            "ci_high": 0.5878284727132969
+          },
           "unparseable_rate_pct": [
             0.0
           ]

@@ -1,0 +1,94 @@
+{
+ "status": "DERIVED_FROM_TRAINING_LOG",
+ "source": "data/train_full_seed0.log (untracked) from the completed full-regime seed-0 run",
+ "method": "For each progress report, iterations_in_interval / logged It/sec; summed. Excludes the 4 validation passes (~35s each) and the final short report. It/sec values were logged while the machine may have slept, so this is an ESTIMATE of active step time, not a measurement.",
+ "iterations_per_report": 681,
+ "n_reports": 20,
+ "total_iterations": 13638,
+ "reports": [
+  {
+   "iter": 681,
+   "it_per_sec": 0.304
+  },
+  {
+   "iter": 1362,
+   "it_per_sec": 0.322
+  },
+  {
+   "iter": 2043,
+   "it_per_sec": 0.328
+  },
+  {
+   "iter": 2724,
+   "it_per_sec": 0.332
+  },
+  {
+   "iter": 3405,
+   "it_per_sec": 0.331
+  },
+  {
+   "iter": 4086,
+   "it_per_sec": 0.306
+  },
+  {
+   "iter": 4767,
+   "it_per_sec": 0.297
+  },
+  {
+   "iter": 5448,
+   "it_per_sec": 0.293
+  },
+  {
+   "iter": 6129,
+   "it_per_sec": 0.298
+  },
+  {
+   "iter": 6810,
+   "it_per_sec": 0.292
+  },
+  {
+   "iter": 7491,
+   "it_per_sec": 0.323
+  },
+  {
+   "iter": 8172,
+   "it_per_sec": 0.331
+  },
+  {
+   "iter": 8853,
+   "it_per_sec": 0.331
+  },
+  {
+   "iter": 9534,
+   "it_per_sec": 0.327
+  },
+  {
+   "iter": 10215,
+   "it_per_sec": 0.331
+  },
+  {
+   "iter": 10896,
+   "it_per_sec": 0.328
+  },
+  {
+   "iter": 11577,
+   "it_per_sec": 0.325
+  },
+  {
+   "iter": 12258,
+   "it_per_sec": 0.324
+  },
+  {
+   "iter": 12939,
+   "it_per_sec": 0.328
+  },
+  {
+   "iter": 13620,
+   "it_per_sec": 0.322
+  }
+ ],
+ "mean_it_per_sec": 0.3187,
+ "estimated_active_step_seconds": 42827.7,
+ "estimated_active_step_hours": 11.9,
+ "recorded_wall_clock_seconds": 87683.9
+}

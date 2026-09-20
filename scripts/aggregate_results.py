@@ -159,12 +159,24 @@ def load_arm4(path: Path) -> dict:
                 "primary_macro_f1": mean_stdev(id_vals),
                 "full_micro_f1": mean_stdev(id_micro),
                 "eval_subset_size": runs[0]["id_eval"]["eval_subset_size"],
+                "bootstrap_ci_mean_over_seeds": {
+                    "ci_low": statistics.mean(r["id_eval"]["primary_macro_f1_bootstrap_ci"]["ci_low"] for r in runs),
+                    "ci_high": statistics.mean(r["id_eval"]["primary_macro_f1_bootstrap_ci"]["ci_high"] for r in runs),
+                },
                 "unparseable_rate_pct": [r["id_eval"]["unparseable_rate_pct"] for r in runs],
             },
             "test_temporal_shift": {
                 "primary_macro_f1": mean_stdev(shift_vals),
                 "full_micro_f1": mean_stdev(shift_micro),
                 "eval_subset_size": runs[0]["shift_eval"]["eval_subset_size"],
+                "bootstrap_ci_mean_over_seeds": {
+                    "ci_low": statistics.mean(
+                        r["shift_eval"]["primary_macro_f1_bootstrap_ci"]["ci_low"] for r in runs
+                    ),
+                    "ci_high": statistics.mean(
+                        r["shift_eval"]["primary_macro_f1_bootstrap_ci"]["ci_high"] for r in runs
+                    ),
+                },
                 "unparseable_rate_pct": [r["shift_eval"]["unparseable_rate_pct"] for r in runs],
             },
             "rare_class_metrics": runs[0]["id_eval"]["policy_evaluation"]["rare_class_metrics"],

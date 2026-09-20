@@ -166,3 +166,40 @@ as "the encoder arm ran ModernBERT," and any interpretation of Arm
 1-vs-Arm-2/3/4 (small LLM arms) should note this was the practical
 encoder choice available under a strict $0 compute budget, not
 necessarily the most capable encoder that exists.
+
+## 2026-09-16 — Arm 4 design: QLoRA on the Arm 2/3 base, frozen before any Arm 4 result
+
+- **Model and method.** Same `mlx-community/Qwen2.5-1.5B-Instruct-4bit` base as
+  Arms 2/3, with LoRA adapters trained through `mlx-lm` (QLoRA: adapters over a
+  frozen 4-bit base), so any difference from Arm 3 is attributable to the
+  adapter rather than the model or prompt. The engineered Arm 3 prompt is the
+  training and evaluation template.
+- **Frozen configuration** (`src/triagebench/models/lora_arm.py`): rank 8,
+  dropout 0.05, scale 20, all 28 layers, learning rate 1e-4, 3 epochs
+  (converted to iterations by training-set size), effective batch size 16,
+  max sequence length 512, completion-only loss. Values are standard, not
+  tuned; no sweep was run.
+- **One change after the first attempt, methodology-neutral.** The first pilot
+  hit a Metal out-of-memory error; gradient checkpointing was enabled (a
+  memory/compute trade-off that changes no experimental variable).
+- **Evaluation on the fixed 500-example subset**, identical to Arms 2/3, because
+  generation is far slower than classifier-head inference. Sampling is uniform
+  random (preserving the real class mix) rather than stratified. The cost is
+  lower statistical power than the Arm 0/1 full-split evaluation, which is
+  carried through every comparison.
+- **Seed plan fixed before running larger regimes**: 3 seeds at 50, 200 and 1000
+  per class; **seed 0 only at the full regime**, because a full-data QLoRA run is
+  many hours of local compute and a $0 project cannot buy more. Documented as a
+  limitation rather than hidden.
+- **Arm 5 not run**: no credentials; the project has a $0 API budget.
+
+## 2026-09-20 — Error analysis by inference-only re-scoring, not retraining
+
+The stored artifacts lack predictions, and Arm 0/1 models were not persisted.
+Retraining them was out of scope for the release, so cross-arm error analysis
+was declared not measurable. For Arm 4 alone, the saved adapter was re-run on the
+identical frozen subset (`scripts/error_analysis_arm4.py`), with a hard check
+that recomputed metrics equal the recorded ones (they did, exactly). No training,
+no methodology change, and the resulting predictions are stored with their split
+metadata.
+

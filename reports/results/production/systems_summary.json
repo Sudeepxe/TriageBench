@@ -1,0 +1,80 @@
+{
+  "status": "CONSOLIDATED_FROM_EXISTING_ARTIFACTS",
+  "caveat": "All figures are from one Apple M5 laptop (16GB) running local runs; Arm 0 on CPU, Arms 1-4 on Apple GPU (MPS/MLX). Not comparable to server/GPU deployments. Inference memory was NOT MEASURED for any arm. Arm 5 (frontier API) not evaluated.",
+  "arms": {
+    "arm0_tfidf_logreg": {
+      "hardware": "Apple M5 MacBook Pro (local CPU, scikit-learn)",
+      "p50_ms": 0.211,
+      "p95_ms": 0.33,
+      "latency_note": "MEASURED, 200 single-request calls",
+      "throughput_per_sec": 18313.0,
+      "throughput_note": "MEASURED, batch size 64",
+      "train_seconds_full_wall": 50.9,
+      "train_note": "MEASURED wall-clock (single run, deterministic solver)",
+      "peak_train_memory_gb": "NOT MEASURED",
+      "model_footprint": "NOT MEASURED (fitted model not persisted)"
+    },
+    "arm1_distilbert": {
+      "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run)",
+      "p50_ms": 6.83,
+      "p95_ms": 10.327,
+      "latency_note": "MEASURED, median across 3 full-regime seeds; 50 single-request calls each",
+      "throughput_per_sec": 10969.4,
+      "throughput_note": "MEASURED, batch size 32, median of 3 seeds",
+      "train_seconds_full_wall": [
+        57327.2,
+        7742.1,
+        24167.6
+      ],
+      "train_note": "MEASURED wall-clock per seed; seeds 0 and 2 inflated by macOS sleep (docs/EXPERIMENT_LOG.md EXP-005 gives corrected active-compute ESTIMATES of ~7.3-7.7ks per seed)",
+      "peak_train_memory_gb": "NOT MEASURED",
+      "model_footprint": "distilbert-base-uncased pretrained snapshot ~256MB on disk (MEASURED with du; fine-tuned checkpoint not persisted)"
+    },
+    "arm2_llm_naive": {
+      "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm)",
+      "p50_ms": 151.8,
+      "p95_ms": 197.6,
+      "latency_note": "MEASURED, 500 sequential generations",
+      "throughput_per_sec": 6.46,
+      "throughput_note": "DERIVED: 500 examples / total_generation_seconds, sequential, unbatched",
+      "train_seconds_full_wall": "n/a (no training)",
+      "train_note": "no training",
+      "peak_train_memory_gb": "n/a",
+      "model_footprint": "Qwen2.5-1.5B-Instruct 4-bit ~839MB on disk (MEASURED with du)"
+    },
+    "arm3_llm_engineered": {
+      "hardware": "macOS-27.0-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm)",
+      "p50_ms": 146.6,
+      "p95_ms": 188.2,
+      "latency_note": "MEASURED, 500 sequential generations",
+      "throughput_per_sec": 6.64,
+      "throughput_note": "DERIVED: 500 examples / total_generation_seconds, sequential, unbatched",
+      "train_seconds_full_wall": "n/a (no training)",
+      "train_note": "no training",
+      "peak_train_memory_gb": "n/a",
+      "model_footprint": "same base as Arm 2 (~839MB)"
+    },
+    "arm4_qlora": {
+      "hardware": "macOS-27.2-arm64-arm-64bit device=mps (Apple M5, local $0-cost run, mlx-lm QLoRA)",
+      "p50_ms": 218.4,
+      "p95_ms": 304.5,
+      "latency_note": "MEASURED, 500 sequential generations, full-regime seed-0 adapter, test-ID subset",
+      "throughput_per_sec": 4.36,
+      "throughput_note": "DERIVED: 500 examples / total_generation_seconds, sequential, unbatched",
+      "train_seconds_full_wall": 87683.9,
+      "train_note": "MEASURED wall-clock (24.4h), inflated by macOS sleep; ~11.9h is an ESTIMATE of step time from the logged It/sec (681-iteration reports, mean 0.319 it/s), series in reports/results/arm4/progress_rates_regime_full_seed0.json",
+      "peak_train_memory_gb": "4.399-6.05 (MEASURED range over all 10 Arm 4 training runs; full regime 4.399)",
+      "model_footprint": "base ~839MB + LoRA adapter 36,971,628 bytes (~37MB) (MEASURED file size)"
+    }
+  },
+  "hypothetical_compute_hours_per_million_requests": {
+    "method": "1e6 / throughput_per_sec / 3600, using each arm's measured (Arms 0/1, batched) or derived (Arms 2-4, sequential unbatched) throughput. Batched LLM serving was not measured, so Arm 2-4 values are a single-stream upper bound on this laptop.",
+    "hours": {
+      "arm0_tfidf_logreg": 0.015,
+      "arm1_distilbert": 0.025,
+      "arm2_llm_naive": 43.0,
+      "arm3_llm_engineered": 41.834,
+      "arm4_qlora": 63.71
+    }
+  }
+}

@@ -1,35 +1,45 @@
-# Model arms for TriageBench V1.0. Concrete model choices (checkpoints,
-# revisions) are filled in and frozen as each arm is implemented (Phases
-# 2-7), never chosen after seeing test-set results.
+# Model arms as actually run for TriageBench v1.0.0. Concrete choices were
+# frozen as each arm was implemented, before that arm's test results existed.
+# Details: docs/DESIGN_DECISIONS.md, docs/EXPERIMENT_LOG.md.
 
 arms:
   arm0_classical:
     name: "TF-IDF + Logistic Regression"
-    status: "not started"
+    status: "complete"
+    library: "scikit-learn"
+    regimes: "50/200/1000/full per class, 1 run each (deterministic solver)"
 
   arm1_encoder:
-    name: "Encoder fine-tune"
-    candidates: ["ModernBERT-base", "DeBERTa-v3-base"]
-    selection_criteria: ["license", "architecture", "Apple/CUDA compatibility", "memory footprint", "reproducibility"]
-    status: "not started"
+    name: "DistilBERT-base-uncased fine-tune"
+    status: "complete"
+    originally_planned: "ModernBERT-base"
+    substitution_note: >
+      ModernBERT-base was the originally planned encoder. It was superseded by
+      the locally feasible DistilBERT-base-uncased after ModernBERT proved
+      impractically slow on the local Apple M5 within the $0-compute constraint
+      (docs/DESIGN_DECISIONS.md, docs/EXPERIMENT_LOG.md EXP-004/EXP-005). No
+      ModernBERT result is reported.
+    regimes: "50/200/1000/full per class, 3 seeds each; 3 epochs, batch 16, lr 2e-5, max length 256"
 
   arm2_llm_base:
-    name: "Small LLM base (frozen, no fine-tuning)"
-    size_range: "1B-3B parameters"
-    status: "not started"
+    name: "Qwen2.5-1.5B-Instruct (4-bit, frozen), naive prompt"
+    status: "complete"
+    model: "mlx-community/Qwen2.5-1.5B-Instruct-4bit"
+    evaluation: "fixed 500-example random subset per test split"
 
   arm3_llm_prompted:
-    name: "Prompted small LLM (same base model as Arm 2)"
-    status: "not started"
-    note: "Prompt frozen before test-set evaluation; no test-set tuning."
+    name: "Same base model, engineered prompt with the class list"
+    status: "complete"
+    evaluation: "same fixed 500-example subset as Arm 2"
 
   arm4_lora:
-    name: "LoRA/QLoRA fine-tuned small LLM (same base model as Arm 2)"
-    status: "not started"
+    name: "QLoRA fine-tune of the same Qwen2.5-1.5B 4-bit base (mlx-lm)"
+    status: "complete"
+    config: "rank 8, dropout 0.05, scale 20, all 28 layers, lr 1e-4, 3 epochs, effective batch 16"
+    seeds: "3 seeds at 50/200/1000 per class; seed 0 only at full (compute constraint)"
+    evaluation: "same fixed 500-example subset as Arms 2/3"
 
   arm5_frontier:
     name: "Frontier API reference"
-    provider: "configurable via .env FRONTIER_PROVIDER/FRONTIER_MODEL"
-    subset_size: "150-200 examples (paired across all arms)"
-    status: "not started"
-    caveat: "Potentially-contaminated reference / upper bound, not a clean benchmark."
+    status: "not evaluated"
+    reason: "No API credentials were available and the project has a $0 external-compute/API budget."

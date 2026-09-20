@@ -146,3 +146,31 @@ CSV-unescaped it is directly valid JSON, and must **not** be run through
 the Description-style unescape (JSON has its own `\"` convention for
 in-string quotes — doing so corrupts valid history records; see the
 regression test in `tests/test_csv_parser.py`).
+
+## Model arms and evaluation protocol (as run in v1.0.0)
+
+- **Arm 0** TF-IDF + logistic regression; **Arm 1** DistilBERT-base-uncased
+  fine-tune (planned encoder ModernBERT-base superseded for local feasibility,
+  see `docs/DESIGN_DECISIONS.md`); **Arm 2/3** frozen Qwen2.5-1.5B 4-bit with a
+  naive / engineered prompt; **Arm 4** QLoRA of the same base; **Arm 5**
+  (frontier API) not evaluated.
+- **Data-efficiency regimes:** 50, 200, 1000 examples per class and full, with a
+  stratified per-class sample of the training split; Arms 1 and 4 use 3 seeds
+  (Arm 4 full: 1 seed).
+- **Leakage controls:** models see only `Summary` + `Description`
+  (allowlist enforced by `tests/test_feature_allowlist.py`); exact-duplicate text
+  groups never straddle splits; post-filing fields (status, resolution,
+  history, comments) are excluded from inputs and from error-analysis examples.
+- **Temporal evaluation:** the older era (before 2015-01-01) is split 70/15/15 into
+  train/validation/in-distribution test; the whole recent era is the
+  temporal-shift test. The boundary, ratios and seed are frozen in
+  `configs/experiments.yaml`, each introduced in a single commit and never
+  changed afterwards; all 50 result files carry identical split metadata.
+- **Long-tail policy:** primary macro-F1 averages the 20 classes with at least
+  50 training examples; Incubator is reported separately and counted in
+  micro-F1 and confusion matrices (`long_tail_policy.py`).
+- **Uncertainty:** 1000-resample percentile bootstrap, 95% intervals.
+- **LLM arms:** greedy decoding, at most 20 new tokens; an output that does not
+  match a known class is scored as an always-wrong `__UNPARSEABLE__`
+  prediction, never coerced to a default class.
+

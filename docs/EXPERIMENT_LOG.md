@@ -320,6 +320,9 @@ Every major run is recorded here, including failures. Chronological order.
      numbers are never compared directly against NVIDIA timings.
 - **Tests**: 98 passed, 1 skipped (the CUDA smoke test, no CUDA here),
   lint clean.
+- **Superseded**: the cloud GPU plan below was cancelled before any instance
+  was provisioned (EXP-005; `docs/DESIGN_DECISIONS.md`). No cloud or
+  NVIDIA measurement exists in this project.
 - **Next action**: awaiting review before provisioning cloud GPU (see
   chat for the recommended provider/GPU/cost estimate). Plan: run the
   CUDA smoke test on the rented instance first, then a short timed pilot
@@ -864,3 +867,65 @@ Every major run is recorded here, including failures. Chronological order.
 - **Arm 4 is complete**: 3 seeds at 50/200/1000 per class, 1 seed at
   full. Plots regenerated with Arm 4 added; 126 tests passed, 1
   skipped, lint clean.
+
+## 2026-09-20 — EXP-008: v1.0.0 release phase (analysis, audit, documentation)
+
+- **Scope**: no training, no new arm, no paid compute, no methodology change.
+  Systems consolidation, error analysis, final plots, repository audit and
+  documentation only.
+- **Production analysis**: `scripts/build_production_table.py` consolidates
+  latency, throughput, memory, footprint and training time for Arms 0-4 from
+  existing artifacts into `reports/results/production/systems_summary.json`
+  (`docs/PRODUCTION_ANALYSIS.md`). Inference memory, Arm 0/1 training memory and
+  all batched-LLM figures are NOT MEASURED and are labelled so. The Arm 4
+  full-regime "~11.9 h active compute" is an estimate from the logged It/sec
+  series, now stored in `reports/results/arm4/progress_rates_regime_full_seed0.json`.
+- **Error analysis** (`docs/ERROR_ANALYSIS.md`): the frozen artifacts contain no
+  per-example predictions and no Arm 0/1 models, so per-class and disagreement
+  analysis for Arms 0/1 is NOT MEASURABLE. For Arm 4 only, the saved full-regime
+  adapter was re-run inference-only on the identical frozen subset
+  (`scripts/error_analysis_arm4.py`); the recomputed primary macro-F1 matched the
+  recorded values exactly on both splits (0.626239, 0.472318), so the
+  re-scoring is a faithful reproduction. Findings: UI acts as a sink class; IDE
+  is almost never recovered (recall 0.05 under shift, 34% of shift errors); the
+  temporal split has a very different class mix (IDE 2.5% -> 10.3%, Releng
+  4.1% -> 13.4%, Team 6.7% -> 1.0%, CVS 3.1% -> 0.3% of the full split);
+  semantically adjacent-component confusions explain only a minority of errors.
+  Incubator is absent from both 500-example subsets (the full test splits have
+  only 1 and 4), so Arm 4 rare-class behaviour is NOT MEASURED.
+- **One correction made while writing**: a draft sentence claimed IDE was "the
+  largest drag on shift primary macro-F1". Macro-F1 weights every class equally,
+  so IDE's 11% share does not enlarge its weight; the claim was removed and
+  restated in terms of errors and accuracy.
+- **Corrections to earlier wording** (the entries above are left as written; the
+  claims below are superseded by `docs/RESULTS.md`): the EXP-007 entries for
+  regime 1000 said Arm 4 "overtakes" Arms 0/1 and is "the best-performing arm
+  measured". Arm 4 is scored on a 500-example subset (interval about ±0.06)
+  whereas Arms 0/1 use full test splits, the ID gaps at 1000/class (0.053 and
+  0.093) are of that order, and no paired test exists. The supported statement
+  is that Arm 4's point estimates were above Arms 0/1 on every seed at
+  1000/class, size of advantage uncertain; at full data the arms are
+  statistically indistinguishable; no arm is declared best.
+- **Plots**: regenerated from stored artifacts with the evaluation-set
+  distinction made explicit (full test split: filled/solid; 500-example subset:
+  open/dashed with the bootstrap band), plus accuracy-vs-latency, Arm 4 per-class
+  F1 and confusion plots. A hard-coded Arm 1 value in the first draft of the
+  latency plot was replaced with a read from the result files.
+- **Audit results**: 134 tests pass (1 CUDA test skipped), lint clean. New
+  `tests/test_release_integrity.py` enforces: result artifacts exist for Arms
+  0-4; no Arm 5 results; all 50 result files carry the identical frozen split
+  metadata and a git commit; the long-tail policy and 2015-01-01 boundary match
+  the config; Arm 4 predictions reproduce recorded metrics; no raw data,
+  checkpoints or CSVs are tracked (`git ls-files`: 126 files before this phase,
+  largest 1.7 MB); a secrets scan of tracked files found none. The frozen values
+  (`boundary_date`, `minimum_support_threshold`, `split_seed`,
+  `older_era_fractions`, class lists, subset size/seed) were each introduced in a
+  single commit and never modified.
+- **Stale claims fixed**: `configs/models.yaml` still listed every arm as "not
+  started" and ModernBERT as the encoder candidate; `configs/hardware.yaml`
+  still described a cloud NVIDIA environment; `.env.example` referenced cloud GPU
+  credentials; `README.md` still said "Phase 1 in progress". All now state what
+  was actually run (DistilBERT substituting the originally planned ModernBERT;
+  cloud never used; Arm 5 not evaluated).
+- **Result**: no new measurements affect any reported number.
+

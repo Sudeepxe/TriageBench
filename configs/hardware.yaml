@@ -21,13 +21,9 @@ environments:
 
   cloud_nvidia:
     label: "Environment B — Cloud NVIDIA"
-    provider: "NOT MEASURED"  # filled in when a cloud GPU is actually rented
-    gpu: "NOT MEASURED"
-    vram_gb: null
-    cuda_version: "NOT MEASURED"
-    framework_versions: "NOT MEASURED"
+    status: "NOT USED"
     notes: >
-      Used only where Apple Silicon/MPS is unsuitable (Arm 1 encoder full
-      training, Arm 4 LoRA/QLoRA). Selected as the cheapest GPU with
-      sufficient VRAM for the job at hand; cost/runtime estimated before
-      each run and recorded actual after (see docs/EXPERIMENT_LOG.md).
+      An earlier plan to rent a cloud GPU for Arm 1 was cancelled before any
+      instance was provisioned; TriageBench is a $0 external-compute project
+      (docs/DESIGN_DECISIONS.md). Every result was produced on Environment A.
+      No NVIDIA/CUDA measurement exists anywhere in this repository.
