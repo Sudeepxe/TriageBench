@@ -837,3 +837,30 @@ Every major run is recorded here, including failures. Chronological order.
   sleeps when the lid closes can fail again; if it does, full regime
   will be reported as BLOCKED by local-compute reliability rather than
   worked around.
+
+## 2026-09-20 — EXP-007 concluded: Arm 4 full-regime seed 0 evaluated
+
+- **Run**: the relaunched full-regime seed-0 run completed 13,638 of
+  13,638 iterations (final val loss 0.163, peak memory 4.399 GB,
+  wall-clock 87,683.9s = 24.4h, inflated by sleep; not a compute-cost
+  figure). Adapter and `train_regime_full_seed0.json` written 2026-09-20
+  05:01. I did not diagnose the sleep periods within this specific run.
+- **Evaluation** (unchanged `scripts/evaluate_lora.py`, same fixed
+  500-example paired subset, same frozen protocol; no retraining, no
+  methodology change): primary macro-F1 **0.6262** test-ID
+  (95% CI [0.569, 0.705]) / **0.4723** test-shift ([0.401, 0.588]);
+  full micro-F1 0.772 [0.738, 0.810] / 0.690 [0.648, 0.730]; 0/500
+  unparseable on both; generation p50 218ms / p95 305ms (test-ID).
+  `rare_class_metrics` is empty because Incubator is absent from both
+  500-example subsets, so Arm 4 rare-class behavior is NOT MEASURED.
+- **Finding**: Arm 4 plateaus -- 0.6262 at full data vs. 0.6273 at
+  1000/class (test-ID). At full data Arms 0 (0.6295), 1 (0.6123) and 4
+  (0.6262) are statistically indistinguishable on test-ID primary
+  macro-F1; Arm 4's test-shift point estimate (0.4723) is the highest
+  but its CI overlaps Arms 0/1. No winner is claimed. Caveats recorded
+  in RESULTS.md: subset (n=500) vs. full-test-set comparison, and a
+  single full-regime seed with no variance estimate (seed-0-only by the
+  pre-committed compute plan, not extended).
+- **Arm 4 is complete**: 3 seeds at 50/200/1000 per class, 1 seed at
+  full. Plots regenerated with Arm 4 added; 126 tests passed, 1
+  skipped, lint clean.

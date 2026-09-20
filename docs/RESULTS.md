@@ -1,6 +1,6 @@
 # Results
 
-Status: **in progress.** Arm 0 and Arm 1 complete; Arms 2-5 pending. Every
+Status: **in progress.** Arms 0-4 complete; Arm 5 unavailable (no API credentials). Every
 number below is read directly from `reports/results/*.json` (via
 `scripts/aggregate_results.py` for the data-efficiency table) -- nothing
 here is typed in ahead of the corresponding experiment. See
@@ -99,29 +99,30 @@ outperform classical ML given even minimal supervision. This is a real,
 evidence-based answer to one of the project's central questions, not
 assumed in either direction ahead of time.
 
-## Arm 4: QLoRA fine-tune of the same small LLM (in progress)
+## Arm 4: QLoRA fine-tune of the same small LLM (complete)
 
 Source: `reports/results/arm4/*.json`. Model: same base as Arms 2/3
 (`mlx-community/Qwen2.5-1.5B-Instruct-4bit`), LoRA adapters (rank 8, all
 28 layers) trained via `mlx-lm`'s native QLoRA support on Apple M5, $0
 cost. Evaluated on the SAME fixed 500-example paired subset as Arms
 2/3, using the same engineered prompt template used for training.
-**Status: regimes 50/class, 200/class, and 1000/class complete (3
-seeds each); full pending --
-see `docs/EXPERIMENT_LOG.md` EXP-007 for the pre-committed seed/regime
-scaling plan (full regime will run at seed 0 only, a documented
-resource-practicality limitation, not a shortcut chosen after seeing
-results). Note: some Arm 4 `train_seconds` values include macOS
-Clamshell/Maintenance-Sleep wall-clock inflation from long unattended
-local runs (`caffeinate -i` does not prevent lid-closed sleep) --
-training correctness is unaffected; see EXP-007 for the diagnosis and
-corrected active-compute estimates.**
+**Status: complete. Regimes 50/200/1000 per class have 3 seeds each; the
+full regime has seed 0 only** (pre-committed on compute grounds in
+`docs/EXPERIMENT_LOG.md` EXP-007, before any Arm 4 result existed --
+one full-regime seed is ~14-16h of active compute on this laptop).
+Full-regime seed 0 first ran to iteration 10,896 and was lost to an
+unexplained reboot (logged in EXP-007), then was rerun unchanged. Some
+Arm 4 `train_seconds` values (e.g. full regime: 87,683.9s wall-clock)
+include macOS sleep wall-clock inflation from long unattended local
+runs (`caffeinate -i` does not prevent lid-closed sleep); training
+correctness is unaffected, but those values are not compute cost.
 
 | Regime | n_train | primary macro-F1 (test-ID) | primary macro-F1 (test-shift) |
 |---|---:|---:|---:|
 | 50/class (3 seeds) | 985 | 0.2123 ± 0.1333 | 0.1824 ± 0.1217 |
 | 200/class (3 seeds) | 3,412 | 0.4703 ± 0.0267 | 0.3593 ± 0.0127 |
 | 1000/class (3 seeds) | 15,614 | 0.6273 ± 0.0292 | 0.4680 ± 0.0375 |
+| full (seed 0 only) | 72,736 | 0.6262 | 0.4723 |
 
 Per-seed detail (50/class): seed 0 = 0.2968 / 0.2599, seed 1 = 0.3161 /
 0.2768, **seed 2 = 0.0241 / 0.0106 (a genuine LoRA mode collapse -- the
@@ -130,7 +131,8 @@ label; see EXP-007 for the full diagnosis)**. Per-seed detail
 (200/class, no collapse in any seed): seed 0 = 0.4326 / 0.3447, seed 1
 = 0.4913 / 0.3578, seed 2 = 0.4869 / 0.3756. Per-seed detail
 (1000/class, no collapse in any seed): seed 0 = 0.6568 / 0.4281, seed 1
-= 0.6375 / 0.5182, seed 2 = 0.5875 / 0.4579.
+= 0.6375 / 0.5182, seed 2 = 0.5875 / 0.4579. Full regime seed 0 =
+0.6262 / 0.4723.
 
 **Findings so far**:
 - At 50/class, QLoRA fine-tuning substantially outperforms both
@@ -166,10 +168,59 @@ label; see EXP-007 for the full diagnosis)**. Per-seed detail
   fine-tuning is the best-performing arm measured in this project, and
   it holds robustly across seeds, not as a single-run artifact.**
 
+- **At the full regime, Arm 4 plateaus**: 0.6262 test-ID / 0.4723
+  test-shift (seed 0), essentially unchanged from 1000/class
+  (0.6273 / 0.4680) despite 4.7x more training data. Bootstrap 95% CIs
+  (500-example subset): test-ID primary macro-F1 [0.569, 0.705],
+  test-shift [0.401, 0.588]; full micro-F1 0.772 [0.738, 0.810] and
+  0.690 [0.648, 0.730]; 0/500 unparseable on both splits.
+
+### Full-regime comparison, Arms 0-4 (no winner forced)
+
+| Arm | eval set | primary macro-F1 test-ID | primary macro-F1 test-shift | micro-F1 test-ID |
+|---|---|---:|---:|---:|
+| Arm 0 TF-IDF+LogReg (full data) | full test split | 0.6295 [0.593, 0.657] | 0.4261 | 0.7399 |
+| Arm 1 DistilBERT (full data, 3 seeds) | full test split | 0.6123 ± 0.0203 | 0.4449 ± 0.0031 | 0.8097 |
+| Arm 2 naive prompt (no training) | 500-ex subset | 0.1284 | 0.2247 | 0.1660 |
+| Arm 3 engineered prompt (no training) | 500-ex subset | 0.1664 | 0.1996 | 0.2040 |
+| Arm 4 QLoRA (full data, seed 0) | 500-ex subset | 0.6262 [0.569, 0.705] | 0.4723 [0.401, 0.588] | 0.772 |
+
+  - **On test-ID primary macro-F1, Arms 0, 1 and 4 are statistically
+    indistinguishable at full data** (0.6295 / 0.6123 / 0.6262, with
+    Arm 4's interval overlapping both). Arm 4's full-data test-shift
+    point estimate (0.4723) is the highest of the three, but its CI
+    overlaps Arms 0 and 1, so this is not a demonstrated difference.
+  - On full micro-F1 the ordering is Arm 1 (0.8097) > Arm 4 (0.772) >
+    Arm 0 (0.7399); Arm 4's micro-F1 CI [0.738, 0.810] contains both
+    other values.
+  - Arms 2 and 3 (no fine-tuning) are far below every trained arm.
+  - **Comparison caveat**: Arm 4 (and Arms 2/3) are scored on the fixed
+    500-example subset; Arms 0/1 on the full test split. Arm 4's
+    single full-regime seed also carries no seed-variance estimate.
+    The earlier 1000/class advantage (Arm 4 above Arms 0/1 on all 3
+    seeds) should be read with the same subset-noise caveat: the gaps
+    there (~0.05) are comparable to the subset's CI half-width (~0.06).
+  - **Data-efficiency conclusion supported by the evidence**: Arm 4 is
+    unreliable at 50/class (one collapsed seed), roughly at parity with
+    Arm 0 by 200/class, and at or above Arms 0/1 at 1000/class, after
+    which extra data adds nothing measurable for Arm 4 while Arms 0/1
+    keep improving and converge to it. No arm is shown to win at full
+    data.
+  - **Cost/latency**: Arm 4 generation p50 218ms / p95 305ms per
+    example (test-ID, M5 MPS), versus sub-millisecond Arm 0 and ~7ms
+    Arm 1; peak training memory 4.4GB. Arm 4 full-data training was
+    ~14-16h of active compute versus ~2h for Arm 1 and minutes for
+    Arm 0 (wall-clock 24.4h, inflated by sleep).
+  - **Incubator (rare class)**: `rare_class_metrics` is empty for Arm 4
+    because Incubator does not appear in either 500-example subset, so
+    Arm 4's rare-class behavior is NOT MEASURED (Arm 0's full-test
+    rare-class figures are in `reports/results/arm0/`). The subset also
+    lacks PMC/Scripting/Website (test-ID) and Update/WebDAV
+    (test-shift), so primary macro-F1 averages over the remaining
+    primary classes.
+
 ## Pending
 
-- **Arm 4** regimes 200/1000/full: not yet run (in progress -- see
-  above).
 - **Arm 5** (frontier API reference): marked unavailable -- no API
   credentials configured, by explicit user decision (see
   `docs/EXPERIMENT_LOG.md`).

@@ -19,6 +19,7 @@ REGIME_ORDER = ["50", "200", "1000", "full"]
 ARM_STYLE = {
     "arm0_tfidf_logreg": {"label": "Arm 0: TF-IDF + LogReg", "color": "#1f77b4", "marker": "o"},
     "arm1_distilbert_finetune": {"label": "Arm 1: DistilBERT fine-tune", "color": "#d62728", "marker": "s"},
+    "arm4_qlora_finetune": {"label": "Arm 4: QLoRA Qwen2.5-1.5B (500-ex subset)", "color": "#2ca02c", "marker": "^"},
 }
 
 
